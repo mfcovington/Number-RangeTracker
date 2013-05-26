@@ -16,14 +16,17 @@ my %range;
 
 my $iterations = 5_000_000;
 
-for (1..$iterations) {
-    add_range( $_ , $_ + 5 , \%range );
+for ( 1 .. $iterations ) {
+    add_range( $_, $_ + 5, \%range );
+
     # collapse_ranges(\%range) if $_ % 10000 == 0;
     # collapse_ranges(\%range) if scalar keys %range > 1000;
     # collapse_ranges(\%range);
 }
 
-collapse_ranges(\%range);
+collapse_ranges( \%range );
+
+say range_length( \%range );
 
 p %range;
 
@@ -67,13 +70,9 @@ sub collapse_ranges {
 sub range_length {
     my $range_ref = shift;
     my $length;
-    for ( keys %$range_ref) {
+    for ( keys %$range_ref ) {
         $length += $range_ref->{$_} - $_ + 1;
     }
     return $length;
 }
-
-say range_length( \%range );
-
-
 
