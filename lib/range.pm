@@ -47,7 +47,7 @@ sub collapse_ranges {
 
 sub range_length {
     my $range_ref = shift;
-    my $length;
+    my $length = 0;
     for ( keys %$range_ref ) {
         $length += $range_ref->{$_} - $_ + 1;
     }
