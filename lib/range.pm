@@ -22,6 +22,9 @@ sub add_range {
 sub collapse_ranges {
     my $range_ref = shift;
 
+    return unless %$range_ref;
+    # return if scalar keys %$range_ref == 0;
+
     my @cur_interval;
     my @result;
     my %temp_ranges;
