@@ -47,6 +47,10 @@ sub collapse_ranges {
 
 sub range_length {
     my $range_ref = shift;
+
+    # Should only run if ranges added since last range_length?
+    collapse_ranges($range_ref);
+
     my $length = 0;
     for ( keys %$range_ref ) {
         $length += $range_ref->{$_} - $_ + 1;
