@@ -1,4 +1,7 @@
 package range;
+{
+    $range::VERSION = '0.1.0';
+}
 
 use strict;
 use warnings;
