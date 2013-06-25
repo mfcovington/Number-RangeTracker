@@ -3,7 +3,7 @@ package range;
 use strict;
 use warnings;
 use Exporter;
-use List::Util qw(max);
+use List::Util 'max';
 use List::MoreUtils 'lastidx';
 
 our @ISA    = qw(Exporter);
@@ -23,25 +23,27 @@ sub collapse_ranges {
     my $range_ref = shift;
 
     return unless %$range_ref;
-    # return if scalar keys %$range_ref == 0;
 
     my @cur_interval;
     my @result;
     my %temp_ranges;
 
     for my $start ( sort { $a <=> $b } keys %$range_ref ) {
+        my $end = $range_ref->{$start};
+
         unless (@cur_interval) {
-            @cur_interval = ( $start, $range_ref->{$start} );
+            @cur_interval = ( $start, $end );
             next;
         }
-        my ( $cstart, $cend ) = @cur_interval;
-        if ( $start <= $cend + 1 ) {
-            @cur_interval = ( $cstart, max( $range_ref->{$start}, $cend ) );
+
+        my ( $cur_start, $cur_end ) = @cur_interval;
+        if ( $start <= $cur_end + 1 ) {    # +1 makes it work for integer ranges only
+            @cur_interval = ( $cur_start, max( $end, $cur_end ) );
         }
         else {
             push @result, @cur_interval;
             $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
-            @cur_interval = ( $start, $range_ref->{$start} );
+            @cur_interval = ( $start, $end );
         }
     }
     push @result, @cur_interval;
@@ -57,7 +59,7 @@ sub range_length {
 
     my $length = 0;
     for ( keys %$range_ref ) {
-        $length += $range_ref->{$_} - $_ + 1;
+        $length += $range_ref->{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
