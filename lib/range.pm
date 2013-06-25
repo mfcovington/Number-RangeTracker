@@ -4,9 +4,10 @@ use strict;
 use warnings;
 use Exporter;
 use List::Util qw(max);
+use List::MoreUtils 'lastidx';
 
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(add_range collapse_ranges range_length);
+our @EXPORT = qw(add_range collapse_ranges range_length is_in_range);
 
 sub add_range {
     my ( $start, $end, $range_ref ) = @_;
@@ -56,6 +57,28 @@ sub range_length {
         $length += $range_ref->{$_} - $_ + 1;
     }
     return $length;
+}
+
+sub is_in_range {
+    my ( $query, $range_ref ) = @_;
+
+    # Should only run if ranges added since last range_length?
+    collapse_ranges($range_ref);
+
+    my @starts = sort { $a <=> $b } keys %$range_ref;
+    my $idx = lastidx { $_ <= $query } @starts;
+
+    return 0 if $idx == -1;
+
+    my $start = $starts[$idx];
+    my $end   = $range_ref->{$start};
+    if ( $end < $query ) {
+        return 0;
+    }
+    else {
+        return ( 1, $start, $end );
+    }
+
 }
 
 1;
