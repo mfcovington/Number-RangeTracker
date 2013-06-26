@@ -5,7 +5,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Test::More tests => 8;
 
-BEGIN{ use_ok('range 0.1.0'); }
+BEGIN{ use_ok('range 0.1.1'); }
 
 my %range = ();
 
