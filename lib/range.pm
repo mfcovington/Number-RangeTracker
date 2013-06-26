@@ -28,7 +28,6 @@ sub collapse_ranges {
     return unless %$range_ref;
 
     my @cur_interval;
-    my @result;
     my %temp_ranges;
 
     for my $start ( sort { $a <=> $b } keys %$range_ref ) {
@@ -44,12 +43,10 @@ sub collapse_ranges {
             @cur_interval = ( $cur_start, max( $end, $cur_end ) );
         }
         else {
-            push @result, @cur_interval;
             $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
             @cur_interval = ( $start, $end );
         }
     }
-    push @result, @cur_interval;
     $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
     %$range_ref = %temp_ranges;
 }
