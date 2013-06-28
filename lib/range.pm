@@ -1,28 +1,65 @@
 package range;
 {
-    $range::VERSION = '0.1.1';
+    $range::VERSION = '0.2.0';
 }
 
 use strict;
 use warnings;
-use Exporter;
 use List::Util 'max';
-use List::MoreUtils 'lastidx';
+use List::MoreUtils qw(lastidx lastval);
+use Carp;
 
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(add_range collapse_ranges range_length is_in_range);
+our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
+
+BEGIN {
+    require Exporter;
+    @ISA = qw(Exporter);
+    @EXPORT_OK =
+      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges);
+    %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
+}
 
 sub add_range {
-    my ( $start, $end, $range_ref ) = @_;
-    if ( exists $range_ref->{$start} ) {
-        $range_ref->{$start} = max( $end, $range_ref->{$start} );
+    _update_range( @_, 'add' );
+}
+
+sub rm_range {
+    _update_range( @_, 'rm' );
+}
+
+sub _update_range {
+    my ( $start, $end, $range_ref, $add_or_rm ) = @_;
+
+    if ( $start > $end ) {
+        carp "Warning: Range start ($start) is greater than range end ($end); values have been swapped";
+        ( $start, $end ) = ( $end, $start );
+    }
+
+    if ( exists $range_ref->{$add_or_rm}{$start} ) {
+        $range_ref->{$add_or_rm}{$start} = max( $end, $range_ref->{$add_or_rm}{$start} );
     }
     else {
-        $range_ref->{$start} = $end;
+        $range_ref->{$add_or_rm}{$start} = $end;
     }
+    $range_ref->{messy} = 1;
 }
 
 sub collapse_ranges {
+    my $range_ref = shift;
+
+    return if $range_ref->{messy} == 0;
+
+    _collapse( $range_ref->{add} ) if $range_ref->{add};
+
+    if ( $range_ref->{rm} ) {
+        _collapse( $range_ref->{rm} );
+        _remove($range_ref);
+    }
+
+    $range_ref->{messy} = 0;
+}
+
+sub _collapse {
     my $range_ref = shift;
 
     return unless %$range_ref;
@@ -51,15 +88,46 @@ sub collapse_ranges {
     %$range_ref = %temp_ranges;
 }
 
+sub _remove {
+    my $range_ref = shift;
+
+    my @starts = sort { $a <=> $b } keys %{$range_ref->{add}};
+
+    for my $start ( keys %{ $range_ref->{rm} } ) {
+        my $end = $range_ref->{rm}{$start};
+
+        my $left_start_idx  = lastidx { $_ < $start } @starts;
+        my $right_start_idx = lastidx { $_ <= $end } @starts;
+
+        my $left_start  = $starts[$left_start_idx];
+        my $right_start = $starts[$right_start_idx];
+
+        my $left_end  = $range_ref->{add}{$left_start};
+        my $right_end = $range_ref->{add}{$right_start};
+
+        if ( $right_start_idx - $left_start_idx > 0 ) {
+            delete @{ $range_ref->{add} }
+              { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
+        }
+        if ( $start <= $left_end && $left_start_idx != -1 ) {
+            $range_ref->{add}{$left_start} = $start - 1;
+        }
+        if ( $end >= $right_start && $end < $right_end ) {
+            $range_ref->{add}{ $end + 1 } = $right_end;
+        }
+
+        delete ${ $range_ref->{rm} }{$start};
+    }
+}
+
 sub range_length {
     my $range_ref = shift;
 
-    # Should only run if ranges added since last range_length?
     collapse_ranges($range_ref);
 
     my $length = 0;
-    for ( keys %$range_ref ) {
-        $length += $range_ref->{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    for ( keys %{ $range_ref->{add} } ) {
+        $length += $range_ref->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
@@ -67,16 +135,14 @@ sub range_length {
 sub is_in_range {
     my ( $query, $range_ref ) = @_;
 
-    # Should only run if ranges added since last range_length?
     collapse_ranges($range_ref);
 
-    my @starts = sort { $a <=> $b } keys %$range_ref;
-    my $idx = lastidx { $_ <= $query } @starts;
+    my @starts = sort { $a <=> $b } keys %{ $range_ref->{add} };
+    my $start = lastval { $_ <= $query } @starts;
 
-    return 0 if $idx == -1;
+    return 0 unless defined $start;
 
-    my $start = $starts[$idx];
-    my $end   = $range_ref->{$start};
+    my $end   = $range_ref->{add}{$start};
     if ( $end < $query ) {
         return 0;
     }
@@ -84,6 +150,24 @@ sub is_in_range {
         return ( 1, $start, $end );
     }
 
+}
+
+sub output_ranges {
+    my $range_ref = shift;
+
+    collapse_ranges($range_ref);
+
+    if ( wantarray() ) {
+        return %{ $range_ref->{add} };
+    }
+    elsif ( defined wantarray() ) {
+        return join ',', map { "$_..$range_ref->{add}{$_}" }
+          sort { $a <=> $b } keys %{ $range_ref->{add} };
+    }
+    elsif ( !defined wantarray() ) {
+        carp 'Useless use of output_ranges() in void context';
+    }
+    else { croak 'Bad context for output_ranges()'; }
 }
 
 1;
