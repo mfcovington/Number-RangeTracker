@@ -11,6 +11,8 @@ my $debug = 0;
 BEGIN { use_ok( 'range 0.1.1', ':ALL' ); }
 
 my %range;
+add_range( -20, -10, \%range );
+add_range( -5,  5,   \%range );
 add_range( 10,  20,  \%range );
 add_range( 40,  50,  \%range );
 add_range( 80,  90,  \%range );
@@ -20,25 +22,27 @@ add_range( 200, 250, \%range );
 is_deeply(
     \%range,
     {
-        add   => { 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+        add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
         messy => 1
     },
-    'add 6 initial ranges'
+    'add 8 initial ranges'
 );
 
 subtest 'range check' => sub {
-    plan tests => 7;
+    plan tests => 8;
 
+    my @in_range_neg   = is_in_range( -15, \%range );
     my @in_range_left  = is_in_range( 40,  \%range );
     my @in_range_mid   = is_in_range( 45,  \%range );
     my @in_range_right = is_in_range( 50,  \%range );
-    my @out_before     = is_in_range( 0,   \%range );
+    my @out_before     = is_in_range( -30, \%range );
     my @out_mid        = is_in_range( 105, \%range );
     my @out_after      = is_in_range( 300, \%range );
 
-    is_deeply( \@in_range_left,  [ 1, 40, 50 ], 'value in range (left border)' );
-    is_deeply( \@in_range_mid,   [ 1, 40, 50 ], 'value in range (middle)' );
-    is_deeply( \@in_range_right, [ 1, 40, 50 ], 'value in range (right border)' );
+    is_deeply( \@in_range_neg,   [ 1, -20, -10 ], 'value in range (left border)' );
+    is_deeply( \@in_range_left,  [ 1, 40,  50 ],  'value in range (left border)' );
+    is_deeply( \@in_range_mid,   [ 1, 40,  50 ],  'value in range (middle)' );
+    is_deeply( \@in_range_right, [ 1, 40,  50 ],  'value in range (right border)' );
     is_deeply( \@out_before, [0], 'value out of range (before all)' );
     is_deeply( \@out_mid,    [0], 'value out of range (interior)' );
     is_deeply( \@out_after,  [0], 'value out of range (after all)' );
@@ -46,7 +50,7 @@ subtest 'range check' => sub {
     is_deeply(
         \%range,
         {
-            add   => { 10 => 20, 40 => 50, 80 => 100, 120 => 150, 200 => 250 },
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 100, 120 => 150, 200 => 250 },
             messy => 0
         },
         'ranges collapsed during is_in_range check'
@@ -59,8 +63,8 @@ rm_range( 241, 300, \%range );
 is_deeply(
     \%range,
     {
-        add   => { 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
-        rm    => { 0  => 44, 131 => 139, 241 => 300 },
+        add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
+        rm    => { 0 => 44, 131 => 139, 241 => 300 },
         messy => 1
     },
     'remove 3 ranges'
@@ -70,11 +74,11 @@ subtest 'range length' => sub {
     plan tests => 2;
 
     my $length = range_length( \%range );
-    is( $length, 90, 'range length' );
+    is( $length, 106, 'range length' );
     is_deeply(
         \%range,
         {
-            add   => { 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240 },
+            add   => { -20 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240 },
             rm    => {},
             messy => 0
         },
@@ -87,13 +91,13 @@ subtest 'output ranges' => sub {
 
     add_range( 300,  400,  \%range );
     my $scalar_out = output_ranges( \%range );
-    is( $scalar_out, '45..50,80..100,120..130,140..150,200..240,300..400', 'output range string');
+    is( $scalar_out, '-20..-10,-5..-1,45..50,80..100,120..130,140..150,200..240,300..400', 'output range string');
 
     add_range( 500,  600,  \%range );
     my %hash_out = output_ranges( \%range );
     is_deeply(
         \%hash_out,
-        { 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
+        { -20 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
         'output range hash'
     );
 };
