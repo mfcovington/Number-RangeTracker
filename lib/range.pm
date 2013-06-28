@@ -7,8 +7,7 @@ use strict;
 use warnings;
 use Exporter;
 use List::Util 'max';
-# use List::MoreUtils qw(lastidx lastval);
-use List::MoreUtils 'lastidx';
+use List::MoreUtils qw(lastidx lastval);
 use Carp;
 
 our @ISA    = qw(Exporter);
@@ -119,12 +118,11 @@ sub _remove {
 sub range_length {
     my $range_ref = shift;
 
-    # Should only run if ranges added since last range_length?
     collapse_ranges($range_ref);
 
     my $length = 0;
-    for ( keys %$range_ref ) {
-        $length += $range_ref->{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    for ( keys %{ $range_ref->{add} } ) {
+        $length += $range_ref->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
@@ -132,16 +130,14 @@ sub range_length {
 sub is_in_range {
     my ( $query, $range_ref ) = @_;
 
-    # Should only run if ranges added since last range_length?
     collapse_ranges($range_ref);
 
-    my @starts = sort { $a <=> $b } keys %$range_ref;
-    my $idx = lastidx { $_ <= $query } @starts;
+    my @starts = sort { $a <=> $b } keys %{ $range_ref->{add} };
+    my $start = lastval { $_ <= $query } @starts;
 
-    return 0 if $idx == -1;
+    return 0 unless defined $start;
 
-    my $start = $starts[$idx];
-    my $end   = $range_ref->{$start};
+    my $end   = $range_ref->{add}{$start};
     if ( $end < $query ) {
         return 0;
     }
