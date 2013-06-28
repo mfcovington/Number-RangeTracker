@@ -5,14 +5,19 @@ package range;
 
 use strict;
 use warnings;
-use Exporter;
 use List::Util 'max';
 use List::MoreUtils qw(lastidx lastval);
 use Carp;
 
-our @ISA    = qw(Exporter);
-# our @EXPORT = qw(add_range collapse_ranges range_length is_in_range);
-our @EXPORT = qw(add_range collapse_ranges range_length is_in_range rm_range);
+our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
+
+BEGIN {
+    require Exporter;
+    @ISA = qw(Exporter);
+    @EXPORT_OK =
+      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges);
+    %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
+}
 
 sub add_range {
     _update_range( @_, 'add' );
