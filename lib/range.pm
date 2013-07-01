@@ -15,7 +15,7 @@ BEGIN {
     require Exporter;
     @ISA = qw(Exporter);
     @EXPORT_OK =
-      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges);
+      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_elements);
     %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
 }
 
@@ -168,6 +168,30 @@ sub output_ranges {
         carp 'Useless use of output_ranges() in void context';
     }
     else { croak 'Bad context for output_ranges()'; }
+}
+
+sub output_elements {
+    my $range_ref = shift;
+
+    my @ranges = split ",", output_ranges($range_ref);
+    my @elements;
+    for (@ranges) {
+        m/^(-?\d+)\.\.(-?\d+)$/;
+        for my $value ( $1 .. $2 ) {
+            push @elements, $value;
+        }
+    }
+
+    if ( wantarray() ) {
+        return @elements;
+    }
+    elsif ( defined wantarray() ) {
+        return join ',', @elements;
+    }
+    elsif ( !defined wantarray() ) {
+        carp 'Useless use of output_elements() in void context';
+    }
+    else { croak 'Bad context for output_elements()'; }
 }
 
 1;
