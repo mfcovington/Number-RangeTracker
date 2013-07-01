@@ -181,9 +181,9 @@ sub output_elements {
 
     my @ranges = split ",", output_ranges($range_ref);
     my @elements;
+
     for (@ranges) {
-        m/^(-?\d+)\.\.(-?\d+)$/;
-        for my $value ( $1 .. $2 ) {
+        for my $value ( eval $_ ) {
             push @elements, $value;
         }
     }
