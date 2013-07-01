@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use List::Util 'max';
 use List::MoreUtils qw(lastidx lastval);
+use Scalar::Util 'looks_like_number';
 use Carp;
 
 our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
@@ -29,6 +30,11 @@ sub rm_range {
 
 sub _update_range {
     my ( $start, $end, $range_ref, $add_or_rm ) = @_;
+
+    croak "'$start' not a number in range '$start to $end'"
+      unless looks_like_number $start;
+    croak "'$end' not a number in range '$start to $end'"
+      unless looks_like_number $end;
 
     if ( $start > $end ) {
         carp "Warning: Range start ($start) is greater than range end ($end); values have been swapped";
