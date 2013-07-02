@@ -4,11 +4,11 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Printer;
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'range 0.2.1', ':ALL' ); }
+BEGIN { use_ok( 'range 0.2.2', ':ALL' ); }
 
 my %range;
 add_range( -20, -10, \%range );
@@ -118,6 +118,22 @@ subtest 'output integers in range' => sub {
         'output integers array'
     );
 };
+
+%range = ();
+add_range( -20, -10, \%range );
+rm_range( -20, -19, \%range );
+rm_range( -16, -15, \%range );
+rm_range( -12, -11, \%range );
+collapse_ranges( \%range );
+is_deeply(
+    \%range,
+    {
+        add   => { -18 => -17, -14 => -13, -10 => -10 },
+        rm    => {},
+        messy => 0
+    },
+    'collapse after removing multiple ranges from a single range'
+);
 
 my $test_name;
 my $start;

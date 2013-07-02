@@ -1,6 +1,6 @@
 package range;
 {
-    $range::VERSION = '0.2.1';
+    $range::VERSION = '0.2.2';
 }
 
 use strict;
@@ -99,7 +99,7 @@ sub _remove {
 
     my @starts = sort { $a <=> $b } keys %{$range_ref->{add}};
 
-    for my $start ( keys %{ $range_ref->{rm} } ) {
+    for my $start ( sort { $a <=> $b } keys %{ $range_ref->{rm} } ) {
         my $end = $range_ref->{rm}{$start};
 
         my $left_start_idx  = lastidx { $_ < $start } @starts;
@@ -111,15 +111,26 @@ sub _remove {
         my $left_end  = $range_ref->{add}{$left_start};
         my $right_end = $range_ref->{add}{$right_start};
 
+        # range to remove touches the start of at least one added range
         if ( $right_start_idx - $left_start_idx > 0 ) {
             delete @{ $range_ref->{add} }
               { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
+            splice @starts, 0, $right_start_idx + 1 if $right_start_idx > -1;
         }
+        else {
+            splice @starts, 0, $left_start_idx + 1 if $left_start_idx > -1;
+        }
+
+        # range to remove starts inside an added range
         if ( $start <= $left_end && $left_start_idx != -1 ) {
             $range_ref->{add}{$left_start} = $start - 1;
         }
+
+        # range to remove ends inside an added range
         if ( $end >= $right_start && $end < $right_end ) {
-            $range_ref->{add}{ $end + 1 } = $right_end;
+            my $new_start = $end + 1;
+            $range_ref->{add}{$new_start} = $right_end;
+            unshift @starts, $new_start;
         }
 
         delete ${ $range_ref->{rm} }{$start};
