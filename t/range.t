@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Printer;
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 my $debug = 0;
 
@@ -101,6 +101,20 @@ subtest 'output ranges' => sub {
         'output range hash'
     );
 };
+
+rm_range( -20, -19, \%range );
+rm_range( -16, -15, \%range );
+rm_range( -12, -11, \%range );
+collapse_ranges( \%range );
+is_deeply(
+    \%range,
+    {
+        add   => { -18 => -17, -14 => -13, -10 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
+        rm    => {},
+        messy => 0
+    },
+    'collapse after removing multiple ranges from a single range'
+);
 
 my $test_name;
 my $start;
