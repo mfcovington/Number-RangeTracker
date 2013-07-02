@@ -102,6 +102,8 @@ subtest 'output ranges' => sub {
     );
 };
 
+%range = ();
+add_range( -20, -10, \%range );
 rm_range( -20, -19, \%range );
 rm_range( -16, -15, \%range );
 rm_range( -12, -11, \%range );
@@ -109,7 +111,7 @@ collapse_ranges( \%range );
 is_deeply(
     \%range,
     {
-        add   => { -18 => -17, -14 => -13, -10 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
+        add   => { -18 => -17, -14 => -13, -10 => -10 },
         rm    => {},
         messy => 0
     },
