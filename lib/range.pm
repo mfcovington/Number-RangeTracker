@@ -93,8 +93,8 @@ sub _remove {
 
     my @starts = sort { $a <=> $b } keys %{$range_ref->{add}};
 
-    for my $start ( keys %{ $range_ref->{rm} } ) {
-    # for my $start ( sort { $a <=> $b } keys %{ $range_ref->{rm} } ) {
+    # for my $start ( keys %{ $range_ref->{rm} } ) {
+    for my $start ( sort { $a <=> $b } keys %{ $range_ref->{rm} } ) {
         my $end = $range_ref->{rm}{$start};
 
         my $left_start_idx  = lastidx { $_ < $start } @starts;
@@ -109,6 +109,10 @@ sub _remove {
         if ( $right_start_idx - $left_start_idx > 0 ) {
             delete @{ $range_ref->{add} }
               { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
+            splice @starts, 0, $right_start_idx + 1 if $right_start_idx > -1;
+        }
+        else {
+            splice @starts, 0, $left_start_idx + 1 if $left_start_idx > -1;
         }
         if ( $start <= $left_end && $left_start_idx != -1 ) {
             $range_ref->{add}{$left_start} = $start - 1;
@@ -116,7 +120,8 @@ sub _remove {
         if ( $end >= $right_start && $end < $right_end ) {
             my $new_start = $end + 1;
             $range_ref->{add}{ $new_start } = $right_end;
-            @starts = sort { $a <=> $b } @starts, $new_start;
+            # @starts = sort { $a <=> $b } @starts, $new_start;
+            unshift @starts, $new_start;
         }
 
         delete ${ $range_ref->{rm} }{$start};
