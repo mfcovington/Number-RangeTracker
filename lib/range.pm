@@ -16,7 +16,7 @@ BEGIN {
     require Exporter;
     @ISA = qw(Exporter);
     @EXPORT_OK =
-      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_elements);
+      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_integers);
     %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
 }
 
@@ -176,7 +176,7 @@ sub output_ranges {
     else { croak 'Bad context for output_ranges()'; }
 }
 
-sub output_elements {
+sub output_integers {
     my $range_ref = shift;
 
     my @ranges = split ",", output_ranges($range_ref);
