@@ -32,6 +32,7 @@ is_deeply(
     $range,
     {
         add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+        rm    => {},
         messy => 1
     },
     'add 8 initial ranges'
@@ -60,6 +61,7 @@ subtest 'range check' => sub {
         $range,
         {
             add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 100, 120 => 150, 200 => 250 },
+            rm    => {},
             messy => 0
         },
         'ranges collapsed during is_in_range check'
