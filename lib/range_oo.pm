@@ -209,9 +209,9 @@ sub collapse_ranges_oo {
 
     return if $self->messy == 0;
 
-    $self->_collapse_oo('add') if $self->add;
+    $self->_collapse_oo('add') if scalar keys %{ $self->{add} };
 
-    if ( $self->rm ) {
+    if ( scalar keys %{ $self->{rm} } ) {
         $self->_collapse_oo('rm');
         $self->_remove_oo;
     }
