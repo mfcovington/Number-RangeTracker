@@ -10,82 +10,26 @@ my $debug = 0;
 
 BEGIN { use_ok( 'range_oo 0.2.1', ':ALL' ); }
 
+use feature 'say';    # temporarily...
+
 my $range = range_oo->new();
 
-# p $range;
-use feature 'say';
-
-# $range->add_range_oo( qw( 10 52 ) );
-# $range->add_range_oo( qw( 100 502 ) );
-# $range->add_range_oo( qw( 1000 5200 ) );
-
-# $range->rm_range_oo( qw( 5 11 ) );
-# $range->rm_range_oo( qw( 13 14 ) );
-# $range->rm_range_oo( qw( 17 55 ) );
-# $range->rm_range_oo( qw( 5001 5200 ) );
-
-
-
-$range->add_range_oo( qw( 1 100 ) );
-# $range->add_range_oo( qw( 200 300 ) );
-
-# $range->rm_range_oo( qw( 1 4 ) );
-$range->rm_range_oo( qw( 11 20 ) );
-$range->rm_range_oo( qw( 31 40 ) );
-$range->rm_range_oo( qw( 51 60 ) );
-$range->rm_range_oo( qw( 71 80 ) );
-$range->rm_range_oo( qw( 91 100 ) );
-
-
-
-
-
-# $range->rm_range_oo( qw( 5 19 ) );
-# $range->rm_range_oo( qw( 51 1499 ) );
-# $range->rm_range_oo( qw( 5001 5200 ) );
-
-# my $iterations = $ARGV[0] // 100;
-
-# for ( 1 .. $iterations ) {
-
-#     next unless $_ % 10 == 0;
-
-#     $range->add_range_oo( $_, $_ + 5 );
-#     $range->rm_range_oo( - $_, - $_ + 5 );
-
-#     if ( $_ % ( $iterations / 10 ) == 0 ) {
-#         say $_;
-#         my $now_string = localtime;;
-#         say $now_string;
-#     }
-# }
-
-p $range;
-
-$range->collapse_ranges_oo;
-
-p $range;
-
-# p $range;
-# $range->start(5);
-# p $range;
-# $range->end(10);
-# p $range;
-# $range->add_single;
-# p $range;
-__END__
-
-my %range;
-add_range( -20, -10, \%range );
-add_range( -5,  5,   \%range );
-add_range( 10,  20,  \%range );
-add_range( 40,  50,  \%range );
-add_range( 80,  90,  \%range );
-add_range( 85,  100, \%range );
-add_range( 120, 150, \%range );
-add_range( 200, 250, \%range );
+my @ranges = (
+    [ -20, -10 ],
+    [ -5,  5 ],
+    [ 10,  20 ],
+    [ 40,  50 ],
+    [ 80,  90 ],
+    [ 85,  100 ],
+    [ 120, 150 ],
+    [ 200, 250 ]
+);
+for ( @ranges) {
+    my ($start, $end) = @$_;
+    $range->add_range_oo( $start, $end );
+}
 is_deeply(
-    \%range,
+    $range,
     {
         add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
         messy => 1
