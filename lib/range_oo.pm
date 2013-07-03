@@ -439,23 +439,41 @@ sub is_in_range_oo {
 
 # }
 
-sub output_ranges {
-    my $range_ref = shift;
+sub output_ranges_oo {
+    my $self = shift;
 
-    collapse_ranges($range_ref);
+    $self->collapse_ranges_oo;
 
     if ( wantarray() ) {
-        return %{ $range_ref->{add} };
+        return %{ $self->add };
     }
     elsif ( defined wantarray() ) {
-        return join ',', map { "$_..$range_ref->{add}{$_}" }
-          sort { $a <=> $b } keys %{ $range_ref->{add} };
+        return join ',', map { "$_..$self->{add}{$_}" }
+          sort { $a <=> $b } keys $self->add;
     }
     elsif ( !defined wantarray() ) {
         carp 'Useless use of output_ranges() in void context';
     }
     else { croak 'Bad context for output_ranges()'; }
 }
+
+# sub output_ranges {
+#     my $range_ref = shift;
+
+#     collapse_ranges($range_ref);
+
+#     if ( wantarray() ) {
+#         return %{ $range_ref->{add} };
+#     }
+#     elsif ( defined wantarray() ) {
+#         return join ',', map { "$_..$range_ref->{add}{$_}" }
+#           sort { $a <=> $b } keys %{ $range_ref->{add} };
+#     }
+#     elsif ( !defined wantarray() ) {
+#         carp 'Useless use of output_ranges() in void context';
+#     }
+#     else { croak 'Bad context for output_ranges()'; }
+# }
 
 sub output_integers {
     my $range_ref = shift;

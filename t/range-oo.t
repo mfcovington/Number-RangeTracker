@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Printer;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 my $debug = 0;
 
@@ -99,16 +99,14 @@ subtest 'range length' => sub {
     );
 };
 
-__END__
 subtest 'output ranges' => sub {
     plan tests => 2;
 
-    add_range( 300,  400,  \%range );
-    my $scalar_out = output_ranges( \%range );
+    $range->add_range_oo( 300, 400 );
+    my $scalar_out = $range->output_ranges_oo;
     is( $scalar_out, '-20..-10,-5..-1,45..50,80..100,120..130,140..150,200..240,300..400', 'output range string');
-
-    add_range( 500,  600,  \%range );
-    my %hash_out = output_ranges( \%range );
+    $range->add_range_oo( 500, 600 );
+    my %hash_out = $range->output_ranges_oo;
     is_deeply(
         \%hash_out,
         { -20 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
@@ -116,6 +114,7 @@ subtest 'output ranges' => sub {
     );
 };
 
+__END__
 subtest 'output integers in range' => sub {
     plan tests => 2;
 
