@@ -8,7 +8,7 @@ use Test::More tests => 10;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'range 0.2.2', ':ALL' ); }
+BEGIN { use_ok( 'range 0.3.0', ':ALL' ); }
 
 my %range;
 add_range( -20, -10, \%range );

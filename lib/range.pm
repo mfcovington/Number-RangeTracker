@@ -1,6 +1,6 @@
 package range;
 {
-    $range::VERSION = '0.2.2';
+    $range::VERSION = '0.3.0';
 }
 
 use strict;
