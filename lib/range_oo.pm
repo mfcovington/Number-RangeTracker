@@ -475,10 +475,10 @@ sub output_ranges_oo {
 #     else { croak 'Bad context for output_ranges()'; }
 # }
 
-sub output_integers {
-    my $range_ref = shift;
+sub output_integers_oo {
+    my $self = shift;
 
-    my @ranges = split ",", output_ranges($range_ref);
+    my @ranges = split ",", $self->output_ranges_oo;
     my @elements;
 
     for (@ranges) {
@@ -498,5 +498,29 @@ sub output_integers {
     }
     else { croak 'Bad context for output_elements()'; }
 }
+
+# sub output_integers {
+#     my $range_ref = shift;
+
+#     my @ranges = split ",", output_ranges($range_ref);
+#     my @elements;
+
+#     for (@ranges) {
+#         for my $value ( eval $_ ) {
+#             push @elements, $value;
+#         }
+#     }
+
+#     if ( wantarray() ) {
+#         return @elements;
+#     }
+#     elsif ( defined wantarray() ) {
+#         return join ',', @elements;
+#     }
+#     elsif ( !defined wantarray() ) {
+#         carp 'Useless use of output_elements() in void context';
+#     }
+#     else { croak 'Bad context for output_elements()'; }
+# }
 
 __PACKAGE__->meta->make_immutable();
