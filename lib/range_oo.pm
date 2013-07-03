@@ -146,14 +146,12 @@ sub add_range_oo {
     my $self = shift;
 
     $self->_update_range_oo(@_, 'add');
-    $self->messy(1);
 }
 
 sub rm_range_oo {
     my $self = shift;
 
     $self->_update_range_oo(@_, 'rm');
-    $self->messy(1);
 }
 
 sub _update_range_oo {
@@ -177,6 +175,8 @@ sub _update_range_oo {
     else {
         $self->{$add_or_rm}{$start} = $end;
     }
+
+    $self->messy(1);
 }
 
 
