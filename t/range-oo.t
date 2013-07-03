@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Printer;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 my $debug = 0;
 
@@ -81,14 +81,13 @@ is_deeply(
     'remove 3 ranges'
 );
 
-__END__
 subtest 'range length' => sub {
     plan tests => 2;
 
-    my $length = range_length( \%range );
+    my $length = $range->range_length_oo;
     is( $length, 106, 'range length' );
     is_deeply(
-        \%range,
+        $range,
         {
             add   => { -20 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240 },
             rm    => {},
@@ -98,6 +97,7 @@ subtest 'range length' => sub {
     );
 };
 
+__END__
 subtest 'output ranges' => sub {
     plan tests => 2;
 

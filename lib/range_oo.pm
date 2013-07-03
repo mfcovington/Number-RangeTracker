@@ -373,17 +373,29 @@ sub _remove {
     }
 }
 
-sub range_length {
-    my $range_ref = shift;
+sub range_length_oo {
+    my $self = shift;
 
-    collapse_ranges($range_ref);
+    $self->collapse_ranges_oo;
 
     my $length = 0;
-    for ( keys %{ $range_ref->{add} } ) {
-        $length += $range_ref->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    for ( keys $self->add ) {
+        $length += $self->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
+
+# sub range_length {
+#     my $range_ref = shift;
+
+#     collapse_ranges($range_ref);
+
+#     my $length = 0;
+#     for ( keys %{ $range_ref->{add} } ) {
+#         $length += $range_ref->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+#     }
+#     return $length;
+# }
 
 sub is_in_range_oo {
     my $self = shift;
@@ -407,25 +419,25 @@ sub is_in_range_oo {
 
 }
 
-sub is_in_range {
-    my ( $query, $range_ref ) = @_;
+# sub is_in_range {
+#     my ( $query, $range_ref ) = @_;
 
-    collapse_ranges($range_ref);
+#     collapse_ranges($range_ref);
 
-    my @starts = sort { $a <=> $b } keys %{ $range_ref->{add} };
-    my $start = lastval { $_ <= $query } @starts;
+#     my @starts = sort { $a <=> $b } keys %{ $range_ref->{add} };
+#     my $start = lastval { $_ <= $query } @starts;
 
-    return 0 unless defined $start;
+#     return 0 unless defined $start;
 
-    my $end   = $range_ref->{add}{$start};
-    if ( $end < $query ) {
-        return 0;
-    }
-    else {
-        return ( 1, $start, $end );
-    }
+#     my $end   = $range_ref->{add}{$start};
+#     if ( $end < $query ) {
+#         return 0;
+#     }
+#     else {
+#         return ( 1, $start, $end );
+#     }
 
-}
+# }
 
 sub output_ranges {
     my $range_ref = shift;
