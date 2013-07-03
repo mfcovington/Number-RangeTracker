@@ -30,13 +30,21 @@ has 'end'   => ( is => 'rw', isa => 'Num' );
 sub add_range_oo {
     my $self = shift;
 
-    $self->_update_range_oo(@_, 'add');
+    my @ranges = @_;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        $self->_update_range_oo( $start, $end, 'add');
+    }
 }
 
 sub rm_range_oo {
     my $self = shift;
 
-    $self->_update_range_oo(@_, 'rm');
+    my @ranges = @_;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        $self->_update_range_oo( $start, $end, 'rm');
+    }
 }
 
 sub _update_range_oo {

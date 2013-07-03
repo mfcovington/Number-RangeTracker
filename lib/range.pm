@@ -21,11 +21,21 @@ BEGIN {
 }
 
 sub add_range {
-    _update_range( @_, 'add' );
+    my @ranges = @_;
+    my $range_ref = pop @ranges;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        _update_range( $start, $end, $range_ref, 'add' );
+    }
 }
 
 sub rm_range {
-    _update_range( @_, 'rm' );
+    my @ranges = @_;
+    my $range_ref = pop @ranges;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        _update_range( $start, $end, $range_ref, 'rm' );
+    }
 }
 
 sub _update_range {
