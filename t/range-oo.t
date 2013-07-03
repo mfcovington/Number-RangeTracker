@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Dumper;
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 my $debug = 0;
 
@@ -131,6 +131,22 @@ subtest 'output integers in range' => sub {
         'output integers array'
     );
 };
+
+$range = range_oo->new();
+$range->add_range_oo( -20, -10 );
+$range->rm_range_oo( -20, -19 );
+$range->rm_range_oo( -16, -15 );
+$range->rm_range_oo( -12, -11 );
+$range->collapse_ranges_oo;
+is_deeply(
+    $range,
+    {
+        add   => { -18 => -17, -14 => -13, -10 => -10 },
+        rm    => {},
+        messy => 0
+    },
+    'collapse after removing multiple ranges from a single range'
+);
 
 my $test_name;
 my $start;
