@@ -31,6 +31,8 @@ sub add_range_oo {
     my $self = shift;
 
     my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 0;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
         $self->_update_range_oo( $start, $end, 'add');
@@ -41,6 +43,8 @@ sub rm_range_oo {
     my $self = shift;
 
     my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 0;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
         $self->_update_range_oo( $start, $end, 'rm');

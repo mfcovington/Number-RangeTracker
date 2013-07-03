@@ -22,6 +22,8 @@ BEGIN {
 
 sub add_range {
     my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 1;
     my $range_ref = pop @ranges;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
@@ -31,6 +33,8 @@ sub add_range {
 
 sub rm_range {
     my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 1;
     my $range_ref = pop @ranges;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
