@@ -40,13 +40,13 @@ is_deeply(
 subtest 'range check' => sub {
     plan tests => 8;
 
-    my @in_range_neg   = is_in_range( -15, \%range );
-    my @in_range_left  = is_in_range( 40,  \%range );
-    my @in_range_mid   = is_in_range( 45,  \%range );
-    my @in_range_right = is_in_range( 50,  \%range );
-    my @out_before     = is_in_range( -30, \%range );
-    my @out_mid        = is_in_range( 105, \%range );
-    my @out_after      = is_in_range( 300, \%range );
+    my @in_range_neg   = $range->is_in_range_oo(-15);
+    my @in_range_left  = $range->is_in_range_oo(40);
+    my @in_range_mid   = $range->is_in_range_oo(45);
+    my @in_range_right = $range->is_in_range_oo(50);
+    my @out_before     = $range->is_in_range_oo(-30);
+    my @out_mid        = $range->is_in_range_oo(105);
+    my @out_after      = $range->is_in_range_oo(300);
 
     is_deeply( \@in_range_neg,   [ 1, -20, -10 ], 'value in range (left border)' );
     is_deeply( \@in_range_left,  [ 1, 40,  50 ],  'value in range (left border)' );
@@ -57,7 +57,7 @@ subtest 'range check' => sub {
     is_deeply( \@out_after,  [0], 'value out of range (after all)' );
 
     is_deeply(
-        \%range,
+        $range,
         {
             add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 100, 120 => 150, 200 => 250 },
             messy => 0
@@ -66,6 +66,7 @@ subtest 'range check' => sub {
     );
 };
 
+__END__
 rm_range( 0,   44,  \%range );
 rm_range( 131, 139, \%range );
 rm_range( 241, 300, \%range );

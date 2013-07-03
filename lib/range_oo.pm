@@ -385,6 +385,28 @@ sub range_length {
     return $length;
 }
 
+sub is_in_range_oo {
+    my $self = shift;
+
+    my $query = shift;
+
+    $self->collapse_ranges_oo;
+
+    my @starts = sort { $a <=> $b } keys $self->add;
+    my $start = lastval { $_ <= $query } @starts;
+
+    return 0 unless defined $start;
+
+    my $end   = $self->{add}{$start};
+    if ( $end < $query ) {
+        return 0;
+    }
+    else {
+        return ( 1, $start, $end );
+    }
+
+}
+
 sub is_in_range {
     my ( $query, $range_ref ) = @_;
 
