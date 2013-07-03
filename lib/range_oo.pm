@@ -1,6 +1,6 @@
-package range;
+package range_oo;
 {
-    $range::VERSION = '0.3.0';
+    $range_oo::VERSION = '0.3.0';
 }
 
 use strict;
@@ -9,27 +9,40 @@ use List::Util 'max';
 use List::MoreUtils qw(lastidx lastval);
 use Scalar::Util 'looks_like_number';
 use Carp;
+use Mouse;
 
-our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
+# our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
 
-BEGIN {
-    require Exporter;
-    @ISA = qw(Exporter);
-    @EXPORT_OK =
-      qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_integers);
-    %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
+# BEGIN {
+#     require Exporter;
+#     @ISA = qw(Exporter);
+#     @EXPORT_OK =
+#       qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_integers);
+#     %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
+# }
+
+has 'add'   => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+has 'rm'    => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+has 'messy' => ( is => 'rw', isa => 'Bool',    default => 1 );
+has 'start' => ( is => 'rw', isa => 'Num' );
+has 'end'   => ( is => 'rw', isa => 'Num' );
+
+sub add_range_oo {
+    my $self = shift;
+
+    $self->_update_range_oo(@_, 'add');
 }
 
-sub add_range {
-    _update_range( @_, 'add' );
+sub rm_range_oo {
+    my $self = shift;
+
+    $self->_update_range_oo(@_, 'rm');
 }
 
-sub rm_range {
-    _update_range( @_, 'rm' );
-}
+sub _update_range_oo {
+    my $self = shift;
 
-sub _update_range {
-    my ( $start, $end, $range_ref, $add_or_rm ) = @_;
+    my ( $start, $end, $add_or_rm ) = @_;
 
     croak "'$start' not a number in range '$start to $end'"
       unless looks_like_number $start;
@@ -41,40 +54,41 @@ sub _update_range {
         ( $start, $end ) = ( $end, $start );
     }
 
-    if ( exists $range_ref->{$add_or_rm}{$start} ) {
-        $range_ref->{$add_or_rm}{$start} = max( $end, $range_ref->{$add_or_rm}{$start} );
+    if ( exists $self->{$add_or_rm}{$start} ) {
+        $self->{$add_or_rm}{$start} = max( $end, $self->{$add_or_rm}{$start} );
     }
     else {
-        $range_ref->{$add_or_rm}{$start} = $end;
-    }
-    $range_ref->{messy} = 1;
-}
-
-sub collapse_ranges {
-    my $range_ref = shift;
-
-    return if $range_ref->{messy} == 0;
-
-    _collapse( $range_ref->{add} ) if $range_ref->{add};
-
-    if ( $range_ref->{rm} ) {
-        _collapse( $range_ref->{rm} );
-        _remove($range_ref);
+        $self->{$add_or_rm}{$start} = $end;
     }
 
-    $range_ref->{messy} = 0;
+    $self->messy(1);
 }
 
-sub _collapse {
-    my $range_ref = shift;
+sub collapse_ranges_oo {
+    my $self = shift;
 
-    return unless %$range_ref;
+    return if $self->messy == 0;
+
+    $self->_collapse_oo('add') if scalar keys %{ $self->{add} };
+
+    if ( scalar keys %{ $self->{rm} } ) {
+        $self->_collapse_oo('rm');
+        $self->_remove_oo;
+    }
+
+    $self->messy(0);
+}
+
+sub _collapse_oo {
+    my $self = shift;
+
+    my $add_or_rm = shift;
 
     my @cur_interval;
     my %temp_ranges;
 
-    for my $start ( sort { $a <=> $b } keys %$range_ref ) {
-        my $end = $range_ref->{$start};
+    for my $start ( sort { $a <=> $b } keys $self->{$add_or_rm} ) {
+        my $end = $self->{$add_or_rm}{$start};
 
         unless (@cur_interval) {
             @cur_interval = ( $start, $end );
@@ -91,16 +105,17 @@ sub _collapse {
         }
     }
     $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
-    %$range_ref = %temp_ranges;
+    $self->{$add_or_rm} = \%temp_ranges;
 }
 
-sub _remove {
-    my $range_ref = shift;
 
-    my @starts = sort { $a <=> $b } keys %{$range_ref->{add}};
+sub _remove_oo {
+    my $self = shift;
 
-    for my $start ( sort { $a <=> $b } keys %{ $range_ref->{rm} } ) {
-        my $end = $range_ref->{rm}{$start};
+    my @starts = sort { $a <=> $b } keys $self->add;
+
+    for my $start ( sort { $a <=> $b } keys $self->rm ) {
+        my $end = $self->{rm}{$start};
 
         my $left_start_idx  = lastidx { $_ < $start } @starts;
         my $right_start_idx = lastidx { $_ <= $end } @starts;
@@ -108,12 +123,12 @@ sub _remove {
         my $left_start  = $starts[$left_start_idx];
         my $right_start = $starts[$right_start_idx];
 
-        my $left_end  = $range_ref->{add}{$left_start};
-        my $right_end = $range_ref->{add}{$right_start};
+        my $left_end  = $self->{add}{$left_start};
+        my $right_end = $self->{add}{$right_start};
 
         # range to remove touches the start of at least one added range
         if ( $right_start_idx - $left_start_idx > 0 ) {
-            delete @{ $range_ref->{add} }
+            delete @{ $self->{add} }
               { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
             splice @starts, 0, $right_start_idx + 1 if $right_start_idx > -1;
         }
@@ -122,44 +137,48 @@ sub _remove {
         }
 
         # range to remove starts inside an added range
+        # if ( defined $left_end && $start <= $left_end && $left_start_idx != -1 ) {
         if ( $start <= $left_end && $left_start_idx != -1 ) {
-            $range_ref->{add}{$left_start} = $start - 1;
+            $self->{add}{$left_start} = $start - 1;
         }
 
         # range to remove ends inside an added range
+        # if ( defined $right_end && $end >= $right_start && $end < $right_end ) {
         if ( $end >= $right_start && $end < $right_end ) {
             my $new_start = $end + 1;
-            $range_ref->{add}{$new_start} = $right_end;
+            $self->{add}{ $new_start } = $right_end;
             unshift @starts, $new_start;
         }
 
-        delete ${ $range_ref->{rm} }{$start};
+        delete ${ $self->{rm} }{$start};
     }
 }
 
-sub range_length {
-    my $range_ref = shift;
+sub range_length_oo {
+    my $self = shift;
 
-    collapse_ranges($range_ref);
+    $self->collapse_ranges_oo;
 
     my $length = 0;
-    for ( keys %{ $range_ref->{add} } ) {
-        $length += $range_ref->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    for ( keys $self->add ) {
+        $length += $self->{add}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
 
-sub is_in_range {
-    my ( $query, $range_ref ) = @_;
+sub is_in_range_oo {
+    my $self = shift;
 
-    collapse_ranges($range_ref);
+    my $query = shift;
 
-    my @starts = sort { $a <=> $b } keys %{ $range_ref->{add} };
+    $self->collapse_ranges_oo;
+
+    my @starts = sort { $a <=> $b } keys $self->add;
     my $start = lastval { $_ <= $query } @starts;
 
     return 0 unless defined $start;
 
-    my $end   = $range_ref->{add}{$start};
+    my $end   = $self->{add}{$start};
     if ( $end < $query ) {
         return 0;
     }
@@ -169,17 +188,17 @@ sub is_in_range {
 
 }
 
-sub output_ranges {
-    my $range_ref = shift;
+sub output_ranges_oo {
+    my $self = shift;
 
-    collapse_ranges($range_ref);
+    $self->collapse_ranges_oo;
 
     if ( wantarray() ) {
-        return %{ $range_ref->{add} };
+        return %{ $self->add };
     }
     elsif ( defined wantarray() ) {
-        return join ',', map { "$_..$range_ref->{add}{$_}" }
-          sort { $a <=> $b } keys %{ $range_ref->{add} };
+        return join ',', map { "$_..$self->{add}{$_}" }
+          sort { $a <=> $b } keys $self->add;
     }
     elsif ( !defined wantarray() ) {
         carp 'Useless use of output_ranges() in void context';
@@ -187,10 +206,10 @@ sub output_ranges {
     else { croak 'Bad context for output_ranges()'; }
 }
 
-sub output_integers {
-    my $range_ref = shift;
+sub output_integers_oo {
+    my $self = shift;
 
-    my @ranges = split ",", output_ranges($range_ref);
+    my @ranges = split ",", $self->output_ranges_oo;
     my @elements;
 
     for (@ranges) {
@@ -211,4 +230,4 @@ sub output_integers {
     else { croak 'Bad context for output_elements()'; }
 }
 
-1;
+__PACKAGE__->meta->make_immutable();
