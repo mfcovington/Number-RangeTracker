@@ -8,7 +8,7 @@ use Test::More tests => 11;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'range_oo 0.3.0' ); }
+BEGIN { use_ok( 'range_oo 0.4.0' ); }
 
 use feature 'say';    # temporarily...
 use Data::Printer;    # temporarily...
