@@ -8,25 +8,58 @@ use Test::More tests => 10;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'range 0.3.0', ':ALL' ); }
+BEGIN { use_ok( 'range 0.4.0', ':ALL' ); }
 
 my %range;
-add_range( -20, -10, \%range );
-add_range( -5,  5,   \%range );
-add_range( 10,  20,  \%range );
-add_range( 40,  50,  \%range );
-add_range( 80,  90,  \%range );
-add_range( 85,  100, \%range );
-add_range( 120, 150, \%range );
-add_range( 200, 250, \%range );
-is_deeply(
-    \%range,
-    {
-        add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
-        messy => 1
-    },
-    'add 8 initial ranges'
+
+my @ranges = (
+    [ -20, -10 ],
+    [ -5,  5 ],
+    [ 10,  20 ],
+    [ 40,  50 ],
+    [ 80,  90 ],
+    [ 85,  100 ],
+    [ 120, 150 ],
+    [ 200, 250 ]
 );
+
+subtest 'add ranges' => sub {
+    plan tests => 2;
+
+    for ( @ranges) {
+        my ($start, $end) = @$_;
+        add_range( $start, $end, \%range );
+    }
+    is_deeply(
+        \%range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+            messy => 1
+        },
+        'add 8 ranges one at a time'
+    );
+
+    %range = ();
+    my %range_hash = (
+        -20 => -10,
+        -5  => 5,
+        10  => 20,
+        40  => 50,
+        80  => 90,
+        85  => 100,
+        120 => 150,
+        200 => 250
+    );
+    add_range( %range_hash, \%range );
+    is_deeply(
+        \%range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+            messy => 1
+        },
+        'add 8 ranges at once using hash/array'
+    );
+};
 
 subtest 'range check' => sub {
     plan tests => 8;
@@ -57,18 +90,31 @@ subtest 'range check' => sub {
     );
 };
 
-rm_range( 0,   44,  \%range );
-rm_range( 131, 139, \%range );
-rm_range( 241, 300, \%range );
-is_deeply(
-    \%range,
-    {
-        add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
-        rm    => { 0 => 44, 131 => 139, 241 => 300 },
-        messy => 1
-    },
-    'remove 3 ranges'
-);
+subtest 'remove ranges' => sub {
+    plan tests => 2;
+
+    rm_range( 0, 44, \%range );
+    is_deeply(
+        \%range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
+            rm    => { 0 => 44 },
+            messy => 1
+        },
+        'ranges collapsed during is_in_range check'
+    );
+
+    rm_range( ( 131 => 139, 241 => 300 ), \%range );
+    is_deeply(
+        \%range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
+            rm    => { 0 => 44, 131 => 139, 241 => 300 },
+            messy => 1
+        },
+        'remove two ranges at once using hash/array'
+    );
+};
 
 subtest 'range length' => sub {
     plan tests => 2;
@@ -373,11 +419,15 @@ sub base_rm_collapse_test {
 sub build_base {
     my %base_range;
 
-    add_range( 10,  20,  \%base_range );
-    add_range( 40,  50,  \%base_range );
-    add_range( 80,  100, \%base_range );
-    add_range( 120, 150, \%base_range );
-    add_range( 200, 250, \%base_range );
+    my %range_hash = (
+        10  => 20,
+        40  => 50,
+        80  => 90,
+        85  => 100,
+        120 => 150,
+        200 => 250
+    );
+    add_range( %range_hash, \%base_range );
 
     collapse_ranges( \%base_range );
 

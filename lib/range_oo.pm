@@ -1,6 +1,6 @@
 package range_oo;
 {
-    $range_oo::VERSION = '0.3.0';
+    $range_oo::VERSION = '0.4.0';
 }
 
 use strict;
@@ -30,13 +30,25 @@ has 'end'   => ( is => 'rw', isa => 'Num' );
 sub add_range_oo {
     my $self = shift;
 
-    $self->_update_range_oo(@_, 'add');
+    my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 0;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        $self->_update_range_oo( $start, $end, 'add');
+    }
 }
 
 sub rm_range_oo {
     my $self = shift;
 
-    $self->_update_range_oo(@_, 'rm');
+    my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 0;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        $self->_update_range_oo( $start, $end, 'rm');
+    }
 }
 
 sub _update_range_oo {

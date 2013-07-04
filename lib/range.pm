@@ -1,6 +1,6 @@
 package range;
 {
-    $range::VERSION = '0.3.0';
+    $range::VERSION = '0.4.0';
 }
 
 use strict;
@@ -21,11 +21,25 @@ BEGIN {
 }
 
 sub add_range {
-    _update_range( @_, 'add' );
+    my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 1;
+    my $range_ref = pop @ranges;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        _update_range( $start, $end, $range_ref, 'add' );
+    }
 }
 
 sub rm_range {
-    _update_range( @_, 'rm' );
+    my @ranges = @_;
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 1;
+    my $range_ref = pop @ranges;
+    while (scalar @ranges) {
+        my ( $start, $end ) = splice @ranges, 0, 2;
+        _update_range( $start, $end, $range_ref, 'rm' );
+    }
 }
 
 sub _update_range {
