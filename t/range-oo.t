@@ -16,29 +16,47 @@ use Data::Printer;    # temporarily...
 my $range = range_oo->new();
 is_deeply( $range, { add => {}, rm => {}, messy => 1 }, 'new range object' );
 
-my @ranges = (
-    [ -20, -10 ],
-    [ -5,  5 ],
-    [ 10,  20 ],
-    [ 40,  50 ],
-    [ 80,  90 ],
-    [ 85,  100 ],
-    [ 120, 150 ],
-    [ 200, 250 ]
-);
-for ( @ranges) {
-    my ($start, $end) = @$_;
-    $range->add_range_oo( $start, $end );
-}
-is_deeply(
-    $range,
-    {
-        add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
-        rm    => {},
-        messy => 1
-    },
-    'add 8 initial ranges'
-);
+subtest 'add ranges' => sub {
+    plan tests => 2;
+
+    my @ranges = (
+        [ -20, -10 ],
+        [ -5,  5 ],
+        [ 10,  20 ],
+        [ 40,  50 ],
+        [ 80,  90 ],
+        [ 85,  100 ],
+        [ 120, 150 ],
+        [ 200, 250 ]
+    );
+
+    for ( @ranges) {
+        my ($start, $end) = @$_;
+        $range->add_range_oo( $start, $end );
+    }
+    is_deeply(
+        $range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+            rm    => {},
+            messy => 1
+        },
+        'add 8 ranges one at a time'
+    );
+
+    $range = range_oo->new();
+    my %range_hash = ( -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 );
+    $range->add_range_oo( %range_hash );
+    is_deeply(
+        $range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 },
+            rm    => {},
+            messy => 1
+        },
+        'add 8 ranges at once using hash/array'
+    );
+};
 
 subtest 'range check' => sub {
     plan tests => 8;
@@ -70,20 +88,31 @@ subtest 'range check' => sub {
     );
 };
 
-@ranges = ( [ 0, 44 ], [ 131, 139 ], [ 241, 300 ] );
-for (@ranges) {
-    my ( $start, $end ) = @$_;
-    $range->rm_range_oo( $start, $end );
-}
-is_deeply(
-    $range,
-    {
-        add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
-        rm    => { 0 => 44, 131 => 139, 241 => 300 },
-        messy => 1
-    },
-    'remove 3 ranges'
-);
+subtest 'remove ranges' => sub {
+    plan tests => 2;
+
+    $range->rm_range_oo( 0, 44 );
+    is_deeply(
+        $range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
+            rm    => { 0 => 44 },
+            messy => 1
+        },
+        'remove single range'
+    );
+
+    $range->rm_range_oo( ( 131 => 139, 241 => 300 ) );
+    is_deeply(
+        $range,
+        {
+            add   => { -20 => -10, -5 => 5, 10 => 20, 40  => 50,  80  => 100, 120 => 150, 200 => 250 },
+            rm    => { 0 => 44, 131 => 139, 241 => 300 },
+            messy => 1
+        },
+        'remove two ranges at once using hash/array'
+    );
+};
 
 subtest 'range length' => sub {
     plan tests => 2;
@@ -387,19 +416,15 @@ sub base_rm_collapse_test {
 sub build_base {
     my $range = range_oo->new();
 
-    my @ranges = (
-        [ 10,  20 ],
-        [ 40,  50 ],
-        [ 80,  90 ],
-        [ 85,  100 ],
-        [ 120, 150 ],
-        [ 200, 250 ]
+    my %range_hash = (
+        10  => 20,
+        40  => 50,
+        80  => 90,
+        85  => 100,
+        120 => 150,
+        200 => 250
     );
-
-    for ( @ranges) {
-        my ($start, $end) = @$_;
-        $range->add_range_oo( $start, $end );
-    }
+    $range->add_range_oo( %range_hash );
 
     $range->collapse_ranges_oo;
 
