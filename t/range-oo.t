@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Dumper;
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 my $debug = 0;
 
@@ -14,6 +14,7 @@ use feature 'say';    # temporarily...
 use Data::Printer;    # temporarily...
 
 my $range = range_oo->new();
+is_deeply( $range, { add => {}, rm => {}, messy => 1 }, 'new range object' );
 
 my @ranges = (
     [ -20, -10 ],
