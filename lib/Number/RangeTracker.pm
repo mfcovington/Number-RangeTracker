@@ -14,6 +14,7 @@ use Mouse;
 has 'ranges' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'remove' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'messy'  => ( is => 'rw', isa => 'Bool',    default => 1 );
+has 'units'  => ( is => 'ro', isa => 'Num',     default => 1 );
 has 'start'  => ( is => 'rw', isa => 'Num' );
 has 'end'    => ( is => 'rw', isa => 'Num' );
 
