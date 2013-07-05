@@ -8,7 +8,7 @@ use Test::More tests => 11;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'RangeTracker 0.4.0' ); }
+BEGIN { use_ok( 'Number::RangeTracker 0.4.0' ); }
 
 use feature 'say';    # temporarily...
 use Data::Printer;    # temporarily...
