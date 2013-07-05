@@ -11,16 +11,6 @@ use Scalar::Util 'looks_like_number';
 use Carp;
 use Mouse;
 
-# our ( @ISA, @EXPORT_OK, %EXPORT_TAGS );
-
-# BEGIN {
-#     require Exporter;
-#     @ISA = qw(Exporter);
-#     @EXPORT_OK =
-#       qw(add_range collapse_ranges range_length is_in_range rm_range output_ranges output_integers);
-#     %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
-# }
-
 has 'add'   => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'rm'    => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'messy' => ( is => 'rw', isa => 'Bool',    default => 1 );
