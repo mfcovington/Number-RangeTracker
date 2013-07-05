@@ -27,7 +27,7 @@ has 'messy' => ( is => 'rw', isa => 'Bool',    default => 1 );
 has 'start' => ( is => 'rw', isa => 'Num' );
 has 'end'   => ( is => 'rw', isa => 'Num' );
 
-sub add_range_oo {
+sub add_range {
     my $self = shift;
 
     my @ranges = @_;
@@ -35,11 +35,11 @@ sub add_range_oo {
       if scalar @ranges % 2 != 0;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
-        $self->_update_range_oo( $start, $end, 'add');
+        $self->_update_range( $start, $end, 'add');
     }
 }
 
-sub rm_range_oo {
+sub rm_range {
     my $self = shift;
 
     my @ranges = @_;
@@ -47,11 +47,11 @@ sub rm_range_oo {
       if scalar @ranges % 2 != 0;
     while (scalar @ranges) {
         my ( $start, $end ) = splice @ranges, 0, 2;
-        $self->_update_range_oo( $start, $end, 'rm');
+        $self->_update_range( $start, $end, 'rm');
     }
 }
 
-sub _update_range_oo {
+sub _update_range {
     my $self = shift;
 
     my ( $start, $end, $add_or_rm ) = @_;
@@ -76,22 +76,22 @@ sub _update_range_oo {
     $self->messy(1);
 }
 
-sub collapse_ranges_oo {
+sub collapse_ranges {
     my $self = shift;
 
     return if $self->messy == 0;
 
-    $self->_collapse_oo('add') if scalar keys %{ $self->{add} };
+    $self->_collapse('add') if scalar keys %{ $self->{add} };
 
     if ( scalar keys %{ $self->{rm} } ) {
-        $self->_collapse_oo('rm');
-        $self->_remove_oo;
+        $self->_collapse('rm');
+        $self->_remove;
     }
 
     $self->messy(0);
 }
 
-sub _collapse_oo {
+sub _collapse {
     my $self = shift;
 
     my $add_or_rm = shift;
@@ -121,7 +121,7 @@ sub _collapse_oo {
 }
 
 
-sub _remove_oo {
+sub _remove {
     my $self = shift;
 
     my @starts = sort { $a <=> $b } keys $self->add;
@@ -166,10 +166,10 @@ sub _remove_oo {
     }
 }
 
-sub range_length_oo {
+sub range_length {
     my $self = shift;
 
-    $self->collapse_ranges_oo;
+    $self->collapse_ranges;
 
     my $length = 0;
     for ( keys $self->add ) {
@@ -178,12 +178,12 @@ sub range_length_oo {
     return $length;
 }
 
-sub is_in_range_oo {
+sub is_in_range {
     my $self = shift;
 
     my $query = shift;
 
-    $self->collapse_ranges_oo;
+    $self->collapse_ranges;
 
     my @starts = sort { $a <=> $b } keys $self->add;
     my $start = lastval { $_ <= $query } @starts;
@@ -200,10 +200,10 @@ sub is_in_range_oo {
 
 }
 
-sub output_ranges_oo {
+sub output_ranges {
     my $self = shift;
 
-    $self->collapse_ranges_oo;
+    $self->collapse_ranges;
 
     if ( wantarray() ) {
         return %{ $self->add };
@@ -218,10 +218,10 @@ sub output_ranges_oo {
     else { croak 'Bad context for output_ranges()'; }
 }
 
-sub output_integers_oo {
+sub output_integers {
     my $self = shift;
 
-    my @ranges = split ",", $self->output_ranges_oo;
+    my @ranges = split ",", $self->output_ranges;
     my @elements;
 
     for (@ranges) {

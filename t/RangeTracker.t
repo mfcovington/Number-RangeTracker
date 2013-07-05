@@ -32,7 +32,7 @@ subtest 'add ranges' => sub {
 
     for ( @ranges) {
         my ($start, $end) = @$_;
-        $range->add_range_oo( $start, $end );
+        $range->add_range( $start, $end );
     }
     is_deeply(
         $range,
@@ -46,7 +46,7 @@ subtest 'add ranges' => sub {
 
     $range = RangeTracker->new();
     my %range_hash = ( -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 );
-    $range->add_range_oo( %range_hash );
+    $range->add_range( %range_hash );
     is_deeply(
         $range,
         {
@@ -61,13 +61,13 @@ subtest 'add ranges' => sub {
 subtest 'range check' => sub {
     plan tests => 8;
 
-    my @in_range_neg   = $range->is_in_range_oo(-15);
-    my @in_range_left  = $range->is_in_range_oo(40);
-    my @in_range_mid   = $range->is_in_range_oo(45);
-    my @in_range_right = $range->is_in_range_oo(50);
-    my @out_before     = $range->is_in_range_oo(-30);
-    my @out_mid        = $range->is_in_range_oo(105);
-    my @out_after      = $range->is_in_range_oo(300);
+    my @in_range_neg   = $range->is_in_range(-15);
+    my @in_range_left  = $range->is_in_range(40);
+    my @in_range_mid   = $range->is_in_range(45);
+    my @in_range_right = $range->is_in_range(50);
+    my @out_before     = $range->is_in_range(-30);
+    my @out_mid        = $range->is_in_range(105);
+    my @out_after      = $range->is_in_range(300);
 
     is_deeply( \@in_range_neg,   [ 1, -20, -10 ], 'value in range (left border)' );
     is_deeply( \@in_range_left,  [ 1, 40,  50 ],  'value in range (left border)' );
@@ -91,7 +91,7 @@ subtest 'range check' => sub {
 subtest 'remove ranges' => sub {
     plan tests => 2;
 
-    $range->rm_range_oo( 0, 44 );
+    $range->rm_range( 0, 44 );
     is_deeply(
         $range,
         {
@@ -102,7 +102,7 @@ subtest 'remove ranges' => sub {
         'remove single range'
     );
 
-    $range->rm_range_oo( ( 131 => 139, 241 => 300 ) );
+    $range->rm_range( ( 131 => 139, 241 => 300 ) );
     is_deeply(
         $range,
         {
@@ -117,7 +117,7 @@ subtest 'remove ranges' => sub {
 subtest 'range length' => sub {
     plan tests => 2;
 
-    my $length = $range->range_length_oo;
+    my $length = $range->range_length;
     is( $length, 106, 'range length' );
     is_deeply(
         $range,
@@ -133,11 +133,11 @@ subtest 'range length' => sub {
 subtest 'output ranges' => sub {
     plan tests => 2;
 
-    $range->add_range_oo( 300, 400 );
-    my $scalar_out = $range->output_ranges_oo;
+    $range->add_range( 300, 400 );
+    my $scalar_out = $range->output_ranges;
     is( $scalar_out, '-20..-10,-5..-1,45..50,80..100,120..130,140..150,200..240,300..400', 'output range string');
-    $range->add_range_oo( 500, 600 );
-    my %hash_out = $range->output_ranges_oo;
+    $range->add_range( 500, 600 );
+    my %hash_out = $range->output_ranges;
     is_deeply(
         \%hash_out,
         { -20 => -10, -5 => -1, 45 => 50, 80 => 100, 120 => 130, 140 => 150, 200 => 240, 300 => 400, 500 => 600 },
@@ -148,13 +148,13 @@ subtest 'output ranges' => sub {
 subtest 'output integers in range' => sub {
     plan tests => 2;
 
-    $range->rm_range_oo( 45,  600 );
-    my $scalar_out = $range->output_integers_oo;
+    $range->rm_range( 45,  600 );
+    my $scalar_out = $range->output_integers;
     is( $scalar_out, '-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-5,-4,-3,-2,-1', 'output integers string');
 
-    $range->rm_range_oo( -20, -10 );
-    $range->add_range_oo( 5, 10 );
-    my @array_out = $range->output_integers_oo;
+    $range->rm_range( -20, -10 );
+    $range->add_range( 5, 10 );
+    my @array_out = $range->output_integers;
     is_deeply(
         \@array_out,
         [ -5, -4, -3, -2, -1, 5, 6, 7, 8, 9, 10 ],
@@ -163,11 +163,11 @@ subtest 'output integers in range' => sub {
 };
 
 $range = RangeTracker->new();
-$range->add_range_oo( -20, -10 );
-$range->rm_range_oo( -20, -19 );
-$range->rm_range_oo( -16, -15 );
-$range->rm_range_oo( -12, -11 );
-$range->collapse_ranges_oo;
+$range->add_range( -20, -10 );
+$range->rm_range( -20, -19 );
+$range->rm_range( -16, -15 );
+$range->rm_range( -12, -11 );
+$range->collapse_ranges;
 is_deeply(
     $range,
     {
@@ -401,7 +401,7 @@ sub base_add_collapse_test {
     my ( $start, $end, $range_ref, $test_name ) = @_;
 
     my $base_range_ref = build_base();
-    $base_range_ref->add_range_oo( $start, $end );
+    $base_range_ref->add_range( $start, $end );
     collapse_and_test( $base_range_ref, $range_ref, $test_name );
 }
 
@@ -409,7 +409,7 @@ sub base_rm_collapse_test {
     my ( $start, $end, $range_ref, $test_name ) = @_;
 
     my $base_range_ref = build_base();
-    $base_range_ref->rm_range_oo( $start, $end );
+    $base_range_ref->rm_range( $start, $end );
     collapse_and_test( $base_range_ref, $range_ref, $test_name );
 }
 
@@ -424,9 +424,9 @@ sub build_base {
         120 => 150,
         200 => 250
     );
-    $range->add_range_oo( %range_hash );
+    $range->add_range( %range_hash );
 
-    $range->collapse_ranges_oo;
+    $range->collapse_ranges;
 
     return $range;
 }
@@ -434,7 +434,7 @@ sub build_base {
 sub collapse_and_test {
     my ( $base_range_ref, $range_ref, $test_name ) = @_;
 
-    $base_range_ref->collapse_ranges_oo;
+    $base_range_ref->collapse_ranges;
 
     is_deeply( $base_range_ref, $range_ref, $test_name );
     print Dumper $base_range_ref if $debug;
