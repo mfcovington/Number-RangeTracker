@@ -1,6 +1,6 @@
-package range_oo;
+package RangeTracker;
 {
-    $range_oo::VERSION = '0.4.0';
+    $RangeTracker::VERSION = '0.4.0';
 }
 
 use strict;

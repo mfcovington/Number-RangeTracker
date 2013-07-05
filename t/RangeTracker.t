@@ -8,12 +8,12 @@ use Test::More tests => 11;
 
 my $debug = 0;
 
-BEGIN { use_ok( 'range_oo 0.4.0' ); }
+BEGIN { use_ok( 'RangeTracker 0.4.0' ); }
 
 use feature 'say';    # temporarily...
 use Data::Printer;    # temporarily...
 
-my $range = range_oo->new();
+my $range = RangeTracker->new();
 is_deeply( $range, { add => {}, rm => {}, messy => 1 }, 'new range object' );
 
 subtest 'add ranges' => sub {
@@ -44,7 +44,7 @@ subtest 'add ranges' => sub {
         'add 8 ranges one at a time'
     );
 
-    $range = range_oo->new();
+    $range = RangeTracker->new();
     my %range_hash = ( -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 );
     $range->add_range_oo( %range_hash );
     is_deeply(
@@ -162,7 +162,7 @@ subtest 'output integers in range' => sub {
     );
 };
 
-$range = range_oo->new();
+$range = RangeTracker->new();
 $range->add_range_oo( -20, -10 );
 $range->rm_range_oo( -20, -19 );
 $range->rm_range_oo( -16, -15 );
@@ -414,7 +414,7 @@ sub base_rm_collapse_test {
 }
 
 sub build_base {
-    my $range = range_oo->new();
+    my $range = RangeTracker->new();
 
     my %range_hash = (
         10  => 20,
