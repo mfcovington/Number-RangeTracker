@@ -233,4 +233,20 @@ sub output_integers {
     else { croak 'Bad context for output_elements()'; }
 }
 
+sub inverse {
+    my $self = shift;
+
+    my %ranges = $self->output_ranges;
+    my $end;
+    my $first = 1;
+    my %temp_ranges;
+    for my $start ( sort { $a <=> $b } keys %ranges ) {
+        $temp_ranges{$end + 1} = $start - 1 unless $first;
+        $end = $ranges{$start};
+        $first = 0;
+    }
+
+    return %temp_ranges;
+}
+
 __PACKAGE__->meta->make_immutable();
