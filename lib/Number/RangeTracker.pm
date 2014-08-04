@@ -90,7 +90,7 @@ sub _collapse {
     my @cur_interval;
     my %temp_ranges;
 
-    for my $start ( sort { $a <=> $b } keys $self->{$ranges_or_remove} ) {
+    for my $start ( sort { $a <=> $b } keys %{ $self->{$ranges_or_remove} } ) {
         my $end = $self->{$ranges_or_remove}{$start};
 
         unless (@cur_interval) {
@@ -115,9 +115,9 @@ sub _collapse {
 sub _remove {
     my $self = shift;
 
-    my @starts = sort { $a <=> $b } keys $self->ranges;
+    my @starts = sort { $a <=> $b } keys %{ $self->ranges };
 
-    for my $start ( sort { $a <=> $b } keys $self->remove ) {
+    for my $start ( sort { $a <=> $b } keys %{ $self->remove } ) {
         my $end = $self->{remove}{$start};
 
         my $left_start_idx  = lastidx { $_ < $start } @starts;
@@ -163,7 +163,7 @@ sub range_length {
     $self->collapse_ranges;
 
     my $length = 0;
-    for ( keys $self->ranges ) {
+    for ( keys %{ $self->ranges } ) {
         $length += $self->{ranges}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
@@ -176,7 +176,7 @@ sub is_in_range {
 
     $self->collapse_ranges;
 
-    my @starts = sort { $a <=> $b } keys $self->ranges;
+    my @starts = sort { $a <=> $b } keys %{ $self->ranges };
     my $start = lastval { $_ <= $query } @starts;
 
     return 0 unless defined $start;
@@ -201,7 +201,7 @@ sub output_ranges {
     }
     elsif ( defined wantarray() ) {
         return join ',', map { "$_..$self->{ranges}{$_}" }
-          sort { $a <=> $b } keys $self->ranges;
+          sort { $a <=> $b } keys %{ $self->ranges };
     }
     elsif ( !defined wantarray() ) {
         carp 'Useless use of output_ranges() in void context';
