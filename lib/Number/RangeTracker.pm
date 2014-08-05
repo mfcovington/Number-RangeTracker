@@ -1,6 +1,6 @@
 package RangeTracker;
 {
-    $Number::RangeTracker::VERSION = '0.4.0';
+    $Number::RangeTracker::VERSION = '0.5.0';
 }
 
 use strict;
