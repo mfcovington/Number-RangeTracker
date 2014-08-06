@@ -4,7 +4,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use Data::Dumper;
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 my $debug = 0;
 
@@ -402,6 +402,18 @@ subtest 'remove various ranges' => sub {
     $range_ref = { ranges => { 10 => 20, 40 => 50, 80 => 100, 120 => 150, 200 => 250 }, remove => {}, messy => 0, units => 1 };
     base_remove_collapse_test( $start, $end, $range_ref, $test_name );
 
+};
+
+subtest 'inverse ranges' => sub {
+    plan tests => 1;
+
+    my $base_range_ref = build_base();
+    my %inverse = $base_range_ref->inverse;
+    is_deeply(
+        \%inverse,
+        { 21 => 39, 51 => 79, 101 => 119, 151 => 199 },
+        'Get inverse of ranges'
+    );
 };
 
 sub base_add_collapse_test {
