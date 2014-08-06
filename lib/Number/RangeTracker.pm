@@ -51,13 +51,33 @@ X
 sub add_range {
     my $self = shift;
 
-    my @ranges = @_;
-    croak "Odd number of elements in input ranges (start/stop pairs expected)"
-      if scalar @ranges % 2 != 0;
-    while (scalar @ranges) {
-        my ( $start, $end ) = splice @ranges, 0, 2;
+    my $ranges = _get_range_inputs(@_);
+    while (scalar @$ranges) {
+        my ( $start, $end ) = splice @$ranges, 0, 2;
         $self->_update_range( $start, $end, 'ranges');
     }
+}
+
+sub _get_range_inputs {
+    my @range_input = @_;
+
+    my @ranges;
+    for (@range_input) {
+        if ( ref $_ eq "ARRAY" ) {    # [ 1, 10 ], [ 16, 20 ]
+            push @ranges, @$_;
+        }
+        elsif (/^\d+\.\.\d+$/) {      # '1..10', '16..20'
+            push @ranges, split /\.\./;
+        }
+        else {                        # 1, 10, 16, 20
+            push @ranges, $_;
+        }
+    }
+
+    croak "Odd number of elements in input ranges (start/stop pairs expected)"
+      if scalar @ranges % 2 != 0;
+
+    return \@ranges;
 }
 
 =item remove_range
@@ -69,11 +89,9 @@ X
 sub remove_range {
     my $self = shift;
 
-    my @ranges = @_;
-    croak "Odd number of elements in input ranges (start/stop pairs expected)"
-      if scalar @ranges % 2 != 0;
-    while (scalar @ranges) {
-        my ( $start, $end ) = splice @ranges, 0, 2;
+    my $ranges = _get_range_inputs(@_);
+    while (scalar @$ranges) {
+        my ( $start, $end ) = splice @$ranges, 0, 2;
         $self->_update_range( $start, $end, 'remove');
     }
 }
