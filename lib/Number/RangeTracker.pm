@@ -1,8 +1,4 @@
-package RangeTracker;
-{
-    $Number::RangeTracker::VERSION = '0.5.0';
-}
-
+package Number::RangeTracker;
 use strict;
 use warnings;
 use List::Util 'max';
@@ -11,12 +7,46 @@ use Scalar::Util 'looks_like_number';
 use Carp;
 use Mouse;
 
+=head1 NAME
+
+Number::RangeTracker - Track lots of numerical ranges quickly and easily
+
+=head1 VERSION
+
+Version 0.5.0
+
+=cut
+
+our $VERSION = '0.5.0';
+
+=head1 SYNOPSIS
+
+X
+
+=head1 DESCRIPTION
+
+X
+
+=over 4
+
+=item new
+
+Initializes a new Number::RangeTracker object.
+
+=cut
+
 has 'ranges' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'remove' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'messy'  => ( is => 'rw', isa => 'Bool',    default => 1 );
 has 'units'  => ( is => 'ro', isa => 'Num',     default => 1 );
 has 'start'  => ( is => 'rw', isa => 'Num' );
 has 'end'    => ( is => 'rw', isa => 'Num' );
+
+=item add_range
+
+X
+
+=cut
 
 sub add_range {
     my $self = shift;
@@ -29,6 +59,12 @@ sub add_range {
         $self->_update_range( $start, $end, 'ranges');
     }
 }
+
+=item remove_range
+
+X
+
+=cut
 
 sub remove_range {
     my $self = shift;
@@ -66,6 +102,12 @@ sub _update_range {
 
     $self->messy(1);
 }
+
+=item collapse_ranges
+
+X
+
+=cut
 
 sub collapse_ranges {
     my $self = shift;
@@ -157,6 +199,12 @@ sub _remove {
     }
 }
 
+=item range_length
+
+X
+
+=cut
+
 sub range_length {
     my $self = shift;
 
@@ -168,6 +216,12 @@ sub range_length {
     }
     return $length;
 }
+
+=item is_in_range
+
+X
+
+=cut
 
 sub is_in_range {
     my $self = shift;
@@ -191,6 +245,12 @@ sub is_in_range {
 
 }
 
+=item output_ranges
+
+X
+
+=cut
+
 sub output_ranges {
     my $self = shift;
 
@@ -208,6 +268,12 @@ sub output_ranges {
     }
     else { croak 'Bad context for output_ranges()'; }
 }
+
+=item output_integers
+
+X
+
+=cut
 
 sub output_integers {
     my $self = shift;
@@ -233,6 +299,12 @@ sub output_integers {
     else { croak 'Bad context for output_elements()'; }
 }
 
+=item inverse
+
+X
+
+=cut
+
 sub inverse {
     my $self = shift;
 
@@ -248,5 +320,91 @@ sub inverse {
 
     return %temp_ranges;
 }
+
+=back
+
+=head1 SEE ALSO
+
+L<Number::Range|Number::Range>,
+L<Range::Object::Serial|Range::Object::Serial>,
+L<Tie::RangeHash|Tie::RangeHash>,
+L<Array::IntSpan|Array::IntSpan>,
+L<Bio::Range|Bio::Range>,
+L<Number::Tolerant|Number::Tolerant>
+
+=head1 SOURCE AVAILABILITY
+
+The source code is on Github:
+L<https://github.com/mfcovington/Number-RangeTracker>
+
+=head1 AUTHOR
+
+Michael F. Covington, <mfcovington@gmail.com>
+
+=head1 BUGS
+
+Please report any bugs or feature requests at
+L<https://github.com/mfcovington/Number-RangeTracker/issues>.
+
+=head1 INSTALLATION
+
+To install this module from GitHub using cpanm:
+
+    cpanm git@github.com:mfcovington/Number-RangeTracker.git
+
+Alternatively, download and run the following commands:
+
+    perl Build.PL
+    ./Build
+    ./Build test
+    ./Build install
+
+=head1 SUPPORT AND DOCUMENTATION
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Number::RangeTracker
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2014 Michael F. Covington.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the the Artistic License (2.0). You may obtain a
+copy of the full license at:
+
+L<http://www.perlfoundation.org/artistic_license_2_0>
+
+Any use, modification, and distribution of the Standard or Modified
+Versions is governed by this Artistic License. By using, modifying or
+distributing the Package, you accept this license. Do not use, modify,
+or distribute the Package, if you do not accept this license.
+
+If your Modified Version has been derived from a Modified Version made
+by someone other than you, you are nevertheless required to ensure that
+your Modified Version complies with the requirements of this license.
+
+This license does not grant you the right to use any trademark, service
+mark, tradename, or logo of the Copyright Holder.
+
+This license includes the non-exclusive, worldwide, free-of-charge
+patent license to make, have made, use, offer to sell, sell, import and
+otherwise transfer the Package with respect to any patent claims
+licensable by the Copyright Holder that are necessarily infringed by the
+Package. If you institute patent litigation (including a cross-claim or
+counterclaim) against any party alleging that the Package constitutes
+direct or contributory patent infringement, then this Artistic License
+to you shall terminate on the date that such litigation is filed.
+
+Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER
+AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES.
+THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY
+YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
+CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
+CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut
 
 __PACKAGE__->meta->make_immutable();
