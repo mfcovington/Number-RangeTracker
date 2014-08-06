@@ -13,7 +13,7 @@ BEGIN { use_ok( 'Number::RangeTracker 0.5.0' ); }
 use feature 'say';    # temporarily...
 use Data::Printer;    # temporarily...
 
-my $range = RangeTracker->new();
+my $range = Number::RangeTracker->new();
 is_deeply( $range, { ranges => {}, remove => {}, messy => 1, units => 1 }, 'new range object' );
 
 subtest 'add ranges' => sub {
@@ -45,7 +45,7 @@ subtest 'add ranges' => sub {
         'add 8 ranges one at a time'
     );
 
-    $range = RangeTracker->new();
+    $range = Number::RangeTracker->new();
     my %range_hash = ( -20 => -10, -5 => 5, 10 => 20, 40 => 50, 80 => 90, 85 => 100, 120 => 150, 200 => 250 );
     $range->add_range( %range_hash );
     is_deeply(
@@ -168,7 +168,7 @@ subtest 'output integers in range' => sub {
     );
 };
 
-$range = RangeTracker->new();
+$range = Number::RangeTracker->new();
 $range->add_range( -20, -10 );
 $range->remove_range( -20, -19 );
 $range->remove_range( -16, -15 );
@@ -421,7 +421,7 @@ sub base_remove_collapse_test {
 }
 
 sub build_base {
-    my $range = RangeTracker->new();
+    my $range = Number::RangeTracker->new();
 
     my %range_hash = (
         10  => 20,

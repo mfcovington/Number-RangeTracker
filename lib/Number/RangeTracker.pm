@@ -1,4 +1,4 @@
-package RangeTracker;
+package Number::RangeTracker;
 {
     $Number::RangeTracker::VERSION = '0.5.0';
 }
