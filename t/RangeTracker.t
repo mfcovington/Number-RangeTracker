@@ -405,7 +405,7 @@ subtest 'remove various ranges' => sub {
 };
 
 subtest 'inverse ranges' => sub {
-    plan tests => 1;
+    plan tests => 2;
 
     my $base_range_ref = build_base();
     my %inverse = $base_range_ref->inverse;
@@ -413,6 +413,13 @@ subtest 'inverse ranges' => sub {
         \%inverse,
         { 21 => 39, 51 => 79, 101 => 119, 151 => 199 },
         'Get inverse of ranges'
+    );
+
+    %inverse = $base_range_ref->inverse( 1, 300 );
+    is_deeply(
+        \%inverse,
+        { 1 => 9, 21 => 39, 51 => 79, 101 => 119, 151 => 199, 251 => 300 },
+        'Get inverse of ranges (with universe start/end)'
     );
 };
 

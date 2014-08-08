@@ -324,19 +324,18 @@ X
 =cut
 
 sub inverse {
-    my $self = shift;
+    my ( $self, $universe_start, $universe_end ) = @_;
 
-    my %ranges = $self->output_ranges;
-    my $end;
-    my $first = 1;
-    my %temp_ranges;
-    for my $start ( sort { $a <=> $b } keys %ranges ) {
-        $temp_ranges{$end + 1} = $start - 1 unless $first;
-        $end = $ranges{$start};
-        $first = 0;
-    }
+    my @original_ranges = sort { $a <=> $b } $self->output_ranges;
 
-    return %temp_ranges;
+    $universe_start = $original_ranges[0]  unless defined $universe_start;
+    $universe_end   = $original_ranges[-1] unless defined $universe_end;
+
+    my $inverse = Number::RangeTracker->new;
+    $inverse->add_range( $universe_start, $universe_end );
+    $inverse->remove_range(@original_ranges);
+
+    return $inverse->output_ranges;
 }
 
 =back
