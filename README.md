@@ -20,23 +20,23 @@ X
 
     Initializes a new Number::RangeTracker object.
 
-- add\_range( START, END )
+- add( START, END )
 
     Add one or more ranges. This can be used multiple times to add ranges
     to the object. Ranges can be added in several ways. The following are
     equivalent.
 
-        $range->add_range( [ 1, 10 ], [ 16, 20 ] );
-        $range->add_range( 1, 10, 16, 20 );
-        $range->add_range( '1..10', '16..20' );
+        $range->add( [ 1, 10 ], [ 16, 20 ] );
+        $range->add( 1, 10, 16, 20 );
+        $range->add( '1..10', '16..20' );
 
-- remove\_range( START, END )
+- remove( START, END )
 
     Remove one or more ranges from the current set of ranges. This can be
     used multiple times to remove ranges from the object. Ranges can be
     removed with the same syntax used for adding ranges.
 
-- collapse\_ranges
+- collapse
 
     When ranges are added or removed, overlapping ranges are not collapsed
     until necessary. This allows range Number::RangeTracker to be very
@@ -53,7 +53,7 @@ X
     waiting to be removed) and (2) before each of the following methods is
     executed.
 
-- range\_length
+- length
 
     Returns the total length of all ranges combined.
 
@@ -64,7 +64,7 @@ X
     result: 1, start position of the containing range, end position of the
     containing range.
 
-- output\_ranges
+- output
 
     Returns all ranges sorted by their start positions. In list context,
     returns a list of all ranges sorted by start positions. This is
@@ -72,7 +72,7 @@ X
     object. In scalar context, returns a string of ranges formatted as:
     `1..10,16..20`.
 
-- output\_integers
+- integers
 
     Returns each integer contained within the ranges. In list context,
     returns a sorted list. In scalar context, returns a sorted,
@@ -84,7 +84,7 @@ X
     context sorted by range start positions.
 
         my $original_range = Number::RangeTracker->new;
-        $original_range->add_range( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
+        $original_range->add( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
 
         my %complement = $original_range->complement;
         # -inf => 10,
@@ -104,7 +104,7 @@ X
     quickly and easily.
 
         my $complement_range = Number::RangeTracker->new;
-        $complement_range->add_range( $original_range->complement );
+        $complement_range->add( $original_range->complement );
 
 # SEE ALSO
 

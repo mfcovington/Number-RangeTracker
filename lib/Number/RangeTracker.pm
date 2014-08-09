@@ -35,33 +35,33 @@ Initializes a new Number::RangeTracker object.
 
 =cut
 
-has 'ranges' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-has 'remove' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-has 'messy_add' => ( is => 'rw', isa => 'Bool', default => 0 );
-has 'messy_rem' => ( is => 'rw', isa => 'Bool', default => 0 );
-has 'units'     => ( is => 'ro', isa => 'Num',  default => 1 );
-has 'start'     => ( is => 'rw', isa => 'Num' );
-has 'end'       => ( is => 'rw', isa => 'Num' );
+has '_added'   => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+has '_removed' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
+has '_messy_add' => ( is => 'rw', isa => 'Bool', default => 0 );
+has '_messy_rem' => ( is => 'rw', isa => 'Bool', default => 0 );
+has 'units'      => ( is => 'ro', isa => 'Num',  default => 1 );
+has 'start'      => ( is => 'rw', isa => 'Num' );
+has 'end'        => ( is => 'rw', isa => 'Num' );
 
-=item add_range( START, END )
+=item add( START, END )
 
 Add one or more ranges. This can be used multiple times to add ranges
 to the object. Ranges can be added in several ways. The following are
 equivalent.
 
-    $range->add_range( [ 1, 10 ], [ 16, 20 ] );
-    $range->add_range( 1, 10, 16, 20 );
-    $range->add_range( '1..10', '16..20' );
+    $range->add( [ 1, 10 ], [ 16, 20 ] );
+    $range->add( 1, 10, 16, 20 );
+    $range->add( '1..10', '16..20' );
 
 =cut
 
-sub add_range {
+sub add {
     my $self = shift;
 
     my $ranges = _get_range_inputs(@_);
     while (scalar @$ranges) {
         my ( $start, $end ) = splice @$ranges, 0, 2;
-        $self->_update_range( $start, $end, 'ranges');
+        $self->_update_range( $start, $end, '_added');
     }
 }
 
@@ -87,7 +87,7 @@ sub _get_range_inputs {
     return \@ranges;
 }
 
-=item remove_range( START, END )
+=item remove( START, END )
 
 Remove one or more ranges from the current set of ranges. This can be
 used multiple times to remove ranges from the object. Ranges can be
@@ -95,23 +95,23 @@ removed with the same syntax used for adding ranges.
 
 =cut
 
-sub remove_range {
+sub remove {
     my $self = shift;
 
     my $ranges = _get_range_inputs(@_);
     while (scalar @$ranges) {
         my ( $start, $end ) = splice @$ranges, 0, 2;
-        $self->_update_range( $start, $end, 'remove');
+        $self->_update_range( $start, $end, '_removed');
     }
 }
 
 sub _update_range {
     my $self = shift;
 
-    my ( $start, $end, $ranges_or_remove ) = @_;
+    my ( $start, $end, $added_or_removed ) = @_;
 
-    $self->collapse_ranges
-        if $self->messy_rem && $ranges_or_remove eq 'ranges';
+    $self->collapse
+        if $self->_messy_rem && $added_or_removed eq '_added';
 
     croak "'$start' not a number in range '$start to $end'"
       unless looks_like_number $start;
@@ -123,22 +123,23 @@ sub _update_range {
         ( $start, $end ) = ( $end, $start );
     }
 
-    if ( exists $self->{$ranges_or_remove}{$start} ) {
-        $self->{$ranges_or_remove}{$start} = max( $end, $self->{$ranges_or_remove}{$start} );
+    if ( exists $self->{$added_or_removed}{$start} ) {
+        $self->{$added_or_removed}{$start}
+            = max( $end, $self->{$added_or_removed}{$start} );
     }
     else {
-        $self->{$ranges_or_remove}{$start} = $end;
+        $self->{$added_or_removed}{$start} = $end;
     }
 
-    if ( $ranges_or_remove eq 'ranges' ) {
-        $self->messy_add(1);
+    if ( $added_or_removed eq '_added' ) {
+        $self->_messy_add(1);
     }
     else {
-        $self->messy_rem(1);
+        $self->_messy_rem(1);
     }
 }
 
-=item collapse_ranges
+=item collapse
 
 When ranges are added or removed, overlapping ranges are not collapsed
 until necessary. This allows range Number::RangeTracker to be very
@@ -157,32 +158,32 @@ executed.
 
 =cut
 
-sub collapse_ranges {
+sub collapse {
     my $self = shift;
 
-    return unless $self->messy_add || $self->messy_rem;
+    return unless $self->_messy_add || $self->_messy_rem;
 
-    $self->_collapse('ranges') if $self->messy_add;
+    $self->_collapse_ranges('_added') if $self->_messy_add;
 
-    if ( $self->messy_rem ) {
-        $self->_collapse('remove');
-        $self->_remove;
+    if ( $self->_messy_rem ) {
+        $self->_collapse_ranges('_removed');
+        $self->_remove_ranges;
     }
 
-    $self->messy_add(0);
-    $self->messy_rem(0);
+    $self->_messy_add(0);
+    $self->_messy_rem(0);
 }
 
-sub _collapse {
+sub _collapse_ranges {
     my $self = shift;
 
-    my $ranges_or_remove = shift;
+    my $added_or_removed = shift;
 
     my @cur_interval;
     my %temp_ranges;
 
-    for my $start ( sort { $a <=> $b } keys %{ $self->{$ranges_or_remove} } ) {
-        my $end = $self->{$ranges_or_remove}{$start};
+    for my $start ( sort { $a <=> $b } keys %{ $self->{$added_or_removed} } ) {
+        my $end = $self->{$added_or_removed}{$start};
 
         unless (@cur_interval) {
             @cur_interval = ( $start, $end );
@@ -199,17 +200,17 @@ sub _collapse {
         }
     }
     $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
-    $self->{$ranges_or_remove} = \%temp_ranges;
+    $self->{$added_or_removed} = \%temp_ranges;
 }
 
 
-sub _remove {
+sub _remove_ranges {
     my $self = shift;
 
-    my @starts = sort { $a <=> $b } keys %{ $self->ranges };
+    my @starts = sort { $a <=> $b } keys %{ $self->_added };
 
-    for my $start ( sort { $a <=> $b } keys %{ $self->remove } ) {
-        my $end = $self->{remove}{$start};
+    for my $start ( sort { $a <=> $b } keys %{ $self->_removed } ) {
+        my $end = $self->{_removed}{$start};
 
         my $left_start_idx  = lastidx { $_ < $start } @starts;
         my $right_start_idx = lastidx { $_ <= $end } @starts;
@@ -218,12 +219,12 @@ sub _remove {
         my $right_start = $starts[$right_start_idx];
         next unless defined $left_start && defined $right_start;
 
-        my $left_end  = $self->{ranges}{$left_start};
-        my $right_end = $self->{ranges}{$right_start};
+        my $left_end  = $self->{_added}{$left_start};
+        my $right_end = $self->{_added}{$right_start};
 
         # range to remove touches the start of at least one rangesed range
         if ( $right_start_idx - $left_start_idx > 0 ) {
-            delete @{ $self->{ranges} }
+            delete @{ $self->{_added} }
               { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
             splice @starts, 0, $right_start_idx + 1 if $right_start_idx > -1;
         }
@@ -234,35 +235,35 @@ sub _remove {
         # range to remove starts inside an rangesed range
         # if ( defined $left_end && $start <= $left_end && $left_start_idx != -1 ) {
         if ( $start <= $left_end && $left_start_idx != -1 ) {
-            $self->{ranges}{$left_start} = $start - 1;
+            $self->{_added}{$left_start} = $start - 1;
         }
 
         # range to remove ends inside an rangesed range
         # if ( defined $right_end && $end >= $right_start && $end < $right_end ) {
         if ( $end >= $right_start && $end < $right_end ) {
             my $new_start = $end + 1;
-            $self->{ranges}{ $new_start } = $right_end;
+            $self->{_added}{ $new_start } = $right_end;
             unshift @starts, $new_start;
         }
 
-        delete ${ $self->{remove} }{$start};
+        delete ${ $self->{_removed} }{$start};
     }
 }
 
-=item range_length
+=item length
 
 Returns the total length of all ranges combined.
 
 =cut
 
-sub range_length {
+sub length {
     my $self = shift;
 
-    $self->collapse_ranges;
+    $self->collapse;
 
     my $length = 0;
-    for ( keys %{ $self->ranges } ) {
-        $length += $self->{ranges}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    for ( keys %{ $self->_added } ) {
+        $length += $self->{_added}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
     }
     return $length;
 }
@@ -281,14 +282,14 @@ sub is_in_range {
 
     my $query = shift;
 
-    $self->collapse_ranges;
+    $self->collapse;
 
-    my @starts = sort { $a <=> $b } keys %{ $self->ranges };
+    my @starts = sort { $a <=> $b } keys %{ $self->_added };
     my $start = lastval { $_ <= $query } @starts;
 
     return 0 unless defined $start;
 
-    my $end   = $self->{ranges}{$start};
+    my $end   = $self->{_added}{$start};
     if ( $end < $query ) {
         return 0;
     }
@@ -298,7 +299,7 @@ sub is_in_range {
 
 }
 
-=item output_ranges
+=item output
 
 Returns all ranges sorted by their start positions. In list context,
 returns a list of all ranges sorted by start positions. This is
@@ -308,25 +309,25 @@ C<1..10,16..20>.
 
 =cut
 
-sub output_ranges {
+sub output {
     my $self = shift;
 
-    $self->collapse_ranges;
+    $self->collapse;
 
     if ( wantarray() ) {
-        return %{ $self->ranges };
+        return %{ $self->_added };
     }
     elsif ( defined wantarray() ) {
-        return join ',', map { "$_..$self->{ranges}{$_}" }
-          sort { $a <=> $b } keys %{ $self->ranges };
+        return join ',', map { "$_..$self->{_added}{$_}" }
+          sort { $a <=> $b } keys %{ $self->_added };
     }
     elsif ( !defined wantarray() ) {
-        carp 'Useless use of output_ranges() in void context';
+        carp 'Useless use of output() in void context';
     }
-    else { croak 'Bad context for output_ranges()'; }
+    else { croak 'Bad context for output()'; }
 }
 
-=item output_integers
+=item integers
 
 Returns each integer contained within the ranges. In list context,
 returns a sorted list. In scalar context, returns a sorted,
@@ -334,10 +335,10 @@ comma-delimited string of integers.
 
 =cut
 
-sub output_integers {
+sub integers {
     my $self = shift;
 
-    my @ranges = split ",", $self->output_ranges;
+    my @ranges = split ",", $self->output;
     my @elements;
 
     for (@ranges) {
@@ -364,7 +365,7 @@ Returns the complement of a set of ranges. The output is in list
 context sorted by range start positions.
 
     my $original_range = Number::RangeTracker->new;
-    $original_range->add_range( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
+    $original_range->add( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
 
     my %complement = $original_range->complement;
     # -inf => 10,
@@ -384,7 +385,7 @@ A new object with the complement of a set of ranges can be created
 quickly and easily.
 
     my $complement_range = Number::RangeTracker->new;
-    $complement_range->add_range( $original_range->complement );
+    $complement_range->add( $original_range->complement );
 
 =cut
 
@@ -395,10 +396,10 @@ sub complement {
     $universe_end   = '+inf' unless defined $universe_end;
 
     my $complement = Number::RangeTracker->new;
-    $complement->add_range( $universe_start, $universe_end );
-    $complement->remove_range( $self->output_ranges );
+    $complement->add( $universe_start, $universe_end );
+    $complement->remove( $self->output );
 
-    return $complement->output_ranges;
+    return $complement->output;
 }
 
 =back
