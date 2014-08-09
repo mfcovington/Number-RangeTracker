@@ -85,9 +85,9 @@ sub add {
     my $self = shift;
 
     my $ranges = _get_range_inputs(@_);
-    while (scalar @$ranges) {
+    while ( scalar @$ranges ) {
         my ( $start, $end ) = splice @$ranges, 0, 2;
-        $self->_update_range( $start, $end, '_added');
+        $self->_update_range( $start, $end, '_added' );
     }
 }
 
@@ -108,7 +108,7 @@ sub _get_range_inputs {
     }
 
     croak "Odd number of elements in input ranges (start/stop pairs expected)"
-      if scalar @ranges % 2 != 0;
+        if scalar @ranges % 2 != 0;
 
     return \@ranges;
 }
@@ -125,39 +125,40 @@ sub remove {
     my $self = shift;
 
     my $ranges = _get_range_inputs(@_);
-    while (scalar @$ranges) {
+    while ( scalar @$ranges ) {
         my ( $start, $end ) = splice @$ranges, 0, 2;
-        $self->_update_range( $start, $end, '_removed');
+        $self->_update_range( $start, $end, '_removed' );
     }
 }
 
 sub _update_range {
     my $self = shift;
 
-    my ( $start, $end, $added_or_removed ) = @_;
+    my ( $start, $end, $add_or_rem ) = @_;
 
     $self->collapse
-        if $self->_messy_rem && $added_or_removed eq '_added';
+        if $self->_messy_rem && $add_or_rem eq '_added';
 
     croak "'$start' not a number in range '$start to $end'"
-      unless looks_like_number $start;
+        unless looks_like_number $start;
     croak "'$end' not a number in range '$start to $end'"
-      unless looks_like_number $end;
+        unless looks_like_number $end;
 
     if ( $start > $end ) {
-        carp "Warning: Range start ($start) is greater than range end ($end); values have been swapped";
+        carp
+            "Warning: Range start ($start) is greater than range end ($end); values have been swapped";
         ( $start, $end ) = ( $end, $start );
     }
 
-    if ( exists $self->{$added_or_removed}{$start} ) {
-        $self->{$added_or_removed}{$start}
-            = max( $end, $self->{$added_or_removed}{$start} );
+    if ( exists $self->{$add_or_rem}{$start} ) {
+        $self->{$add_or_rem}{$start}
+            = max( $end, $self->{$add_or_rem}{$start} );
     }
     else {
-        $self->{$added_or_removed}{$start} = $end;
+        $self->{$add_or_rem}{$start} = $end;
     }
 
-    if ( $added_or_removed eq '_added' ) {
+    if ( $add_or_rem eq '_added' ) {
         $self->_messy_add(1);
     }
     else {
@@ -203,13 +204,13 @@ sub collapse {
 sub _collapse_ranges {
     my $self = shift;
 
-    my $added_or_removed = shift;
+    my $add_or_rem = shift;
 
     my @cur_interval;
     my %temp_ranges;
 
-    for my $start ( sort { $a <=> $b } keys %{ $self->{$added_or_removed} } ) {
-        my $end = $self->{$added_or_removed}{$start};
+    for my $start ( sort { $a <=> $b } keys %{ $self->{$add_or_rem} } ) {
+        my $end = $self->{$add_or_rem}{$start};
 
         unless (@cur_interval) {
             @cur_interval = ( $start, $end );
@@ -226,9 +227,8 @@ sub _collapse_ranges {
         }
     }
     $temp_ranges{ $cur_interval[0] } = $cur_interval[1];
-    $self->{$added_or_removed} = \%temp_ranges;
+    $self->{$add_or_rem} = \%temp_ranges;
 }
-
 
 sub _remove_ranges {
     my $self = shift;
@@ -248,27 +248,25 @@ sub _remove_ranges {
         my $left_end  = $self->{_added}{$left_start};
         my $right_end = $self->{_added}{$right_start};
 
-        # range to remove touches the start of at least one rangesed range
+        # range to remove touches the start of at least one added range
         if ( $right_start_idx - $left_start_idx > 0 ) {
             delete @{ $self->{_added} }
-              { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
+                { @starts[ $left_start_idx + 1 .. $right_start_idx ] };
             splice @starts, 0, $right_start_idx + 1 if $right_start_idx > -1;
         }
         else {
             splice @starts, 0, $left_start_idx + 1 if $left_start_idx > -1;
         }
 
-        # range to remove starts inside an rangesed range
-        # if ( defined $left_end && $start <= $left_end && $left_start_idx != -1 ) {
+        # range to remove starts inside an added range
         if ( $start <= $left_end && $left_start_idx != -1 ) {
             $self->{_added}{$left_start} = $start - 1;
         }
 
-        # range to remove ends inside an rangesed range
-        # if ( defined $right_end && $end >= $right_start && $end < $right_end ) {
+        # range to remove ends inside an added range
         if ( $end >= $right_start && $end < $right_end ) {
             my $new_start = $end + 1;
-            $self->{_added}{ $new_start } = $right_end;
+            $self->{_added}{$new_start} = $right_end;
             unshift @starts, $new_start;
         }
 
@@ -315,7 +313,7 @@ sub is_in_range {
 
     return 0 unless defined $start;
 
-    my $end   = $self->{_added}{$start};
+    my $end = $self->{_added}{$start};
     if ( $end < $query ) {
         return 0;
     }
@@ -344,8 +342,8 @@ sub output {
         return %{ $self->_added };
     }
     elsif ( defined wantarray() ) {
-        return join ',', map { "$_..$self->{_added}{$_}" }
-          sort { $a <=> $b } keys %{ $self->_added };
+        return join ',', map {"$_..$self->{_added}{$_}"}
+            sort { $a <=> $b } keys %{ $self->_added };
     }
     elsif ( !defined wantarray() ) {
         carp 'Useless use of output() in void context';
