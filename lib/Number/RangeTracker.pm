@@ -37,7 +37,7 @@ Initializes a new Number::RangeTracker object.
 
 has 'ranges' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'remove' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-has 'messy_add' => ( is => 'rw', isa => 'Bool', default => 1 );
+has 'messy_add' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'messy_rem' => ( is => 'rw', isa => 'Bool', default => 0 );
 has 'units'     => ( is => 'ro', isa => 'Num',  default => 1 );
 has 'start'     => ( is => 'rw', isa => 'Num' );

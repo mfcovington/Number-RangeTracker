@@ -14,7 +14,7 @@ BEGIN { use_ok( 'Number::RangeTracker 0.5.0' ); }
 # use Data::Printer;    # temporarily...
 
 my $range = Number::RangeTracker->new();
-is_deeply( $range, { ranges => {}, remove => {}, messy_add => 1, messy_rem => 0, units => 1 }, 'new range object' );
+is_deeply( $range, { ranges => {}, remove => {}, messy_add => 0, messy_rem => 0, units => 1 }, 'new range object' );
 
 subtest 'add ranges' => sub {
     plan tests => 2;
