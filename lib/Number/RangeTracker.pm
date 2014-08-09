@@ -37,10 +37,11 @@ Initializes a new Number::RangeTracker object.
 
 has 'ranges' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
 has 'remove' => ( is => 'rw', isa => 'HashRef', default => sub { {} } );
-has 'messy'  => ( is => 'rw', isa => 'Bool',    default => 1 );
-has 'units'  => ( is => 'ro', isa => 'Num',     default => 1 );
-has 'start'  => ( is => 'rw', isa => 'Num' );
-has 'end'    => ( is => 'rw', isa => 'Num' );
+has 'messy_add' => ( is => 'rw', isa => 'Bool', default => 1 );
+has 'messy_rem' => ( is => 'rw', isa => 'Bool', default => 0 );
+has 'units'     => ( is => 'ro', isa => 'Num',  default => 1 );
+has 'start'     => ( is => 'rw', isa => 'Num' );
+has 'end'       => ( is => 'rw', isa => 'Num' );
 
 =item add_range
 
@@ -101,6 +102,9 @@ sub _update_range {
 
     my ( $start, $end, $ranges_or_remove ) = @_;
 
+    $self->collapse_ranges
+        if $self->messy_rem && $ranges_or_remove eq 'ranges';
+
     croak "'$start' not a number in range '$start to $end'"
       unless looks_like_number $start;
     croak "'$end' not a number in range '$start to $end'"
@@ -118,7 +122,12 @@ sub _update_range {
         $self->{$ranges_or_remove}{$start} = $end;
     }
 
-    $self->messy(1);
+    if ( $ranges_or_remove eq 'ranges' ) {
+        $self->messy_add(1);
+    }
+    else {
+        $self->messy_rem(1);
+    }
 }
 
 =item collapse_ranges
@@ -130,16 +139,17 @@ X
 sub collapse_ranges {
     my $self = shift;
 
-    return if $self->messy == 0;
+    return unless $self->messy_add || $self->messy_rem;
 
-    $self->_collapse('ranges') if scalar keys %{ $self->{ranges} };
+    $self->_collapse('ranges') if $self->messy_add;
 
-    if ( scalar keys %{ $self->{remove} } ) {
+    if ( $self->messy_rem ) {
         $self->_collapse('remove');
         $self->_remove;
     }
 
-    $self->messy(0);
+    $self->messy_add(0);
+    $self->messy_rem(0);
 }
 
 sub _collapse {
