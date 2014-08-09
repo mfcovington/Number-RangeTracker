@@ -318,23 +318,23 @@ sub output_integers {
     else { croak 'Bad context for output_elements()'; }
 }
 
-=item inverse
+=item complement
 
 X
 
 =cut
 
-sub inverse {
+sub complement {
     my ( $self, $universe_start, $universe_end ) = @_;
 
     $universe_start = '-inf' unless defined $universe_start;
     $universe_end   = '+inf' unless defined $universe_end;
 
-    my $inverse = Number::RangeTracker->new;
-    $inverse->add_range( $universe_start, $universe_end );
-    $inverse->remove_range( $self->output_ranges );
+    my $complement = Number::RangeTracker->new;
+    $complement->add_range( $universe_start, $universe_end );
+    $complement->remove_range( $self->output_ranges );
 
-    return $inverse->output_ranges;
+    return $complement->output_ranges;
 }
 
 =back

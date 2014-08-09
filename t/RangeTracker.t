@@ -404,22 +404,22 @@ subtest 'remove various ranges' => sub {
 
 };
 
-subtest 'inverse ranges' => sub {
+subtest 'complement ranges' => sub {
     plan tests => 2;
 
     my $base_range_ref = build_base();
-    my %inverse = $base_range_ref->inverse;
+    my %complement = $base_range_ref->complement;
     is_deeply(
-        \%inverse,
+        \%complement,
         { '-inf' => 9, 21 => 39, 51 => 79, 101 => 119, 151 => 199, 251 => '+inf' },
-        'Get inverse of ranges (with infinite universe)'
+        'Get complement of ranges (with infinite universe)'
     );
 
-    %inverse = $base_range_ref->inverse( 1, 300 );
+    %complement = $base_range_ref->complement( 1, 300 );
     is_deeply(
-        \%inverse,
+        \%complement,
         { 1 => 9, 21 => 39, 51 => 79, 101 => 119, 151 => 199, 251 => 300 },
-        'Get inverse of ranges (with finite universe)'
+        'Get complement of ranges (with finite universe)'
     );
 };
 

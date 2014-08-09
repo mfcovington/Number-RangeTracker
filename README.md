@@ -48,7 +48,7 @@ X
 
     X
 
-- inverse
+- complement
 
     X
 
