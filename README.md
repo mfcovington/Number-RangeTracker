@@ -20,37 +20,91 @@ X
 
     Initializes a new Number::RangeTracker object.
 
-- add\_range
+- add\_range( START, END )
 
-    X
+    Add one or more ranges. This can be used multiple times to add ranges
+    to the object. Ranges can be added in several ways. The following are
+    equivalent.
 
-- remove\_range
+        $range->add_range( [ 1, 10 ], [ 16, 20 ] );
+        $range->add_range( 1, 10, 16, 20 );
+        $range->add_range( '1..10', '16..20' );
 
-    X
+- remove\_range( START, END )
+
+    Remove one or more ranges from the current set of ranges. This can be
+    used multiple times to remove ranges from the object. Ranges can be
+    removed with the same syntax used for adding ranges.
 
 - collapse\_ranges
 
-    X
+    When ranges are added or removed, overlapping ranges are not collapsed
+    until necessary. This allows range Number::RangeTracker to be very
+    fast.
+
+    Ranges can be manually collapsed to avoid memory issues when
+    working with very large amounts of ranges. In one test, a million
+    overlapping ranges required ~100 MB of memory. This requirement was
+    cut drastically by collapsing ranges after every 100,000th range was
+    added.
+
+    Ranges are automatically collapsed (and merged or removed where
+    appropriate) (1) before ranges are added (if there are ranges still
+    waiting to be removed) and (2) before each of the following methods is
+    executed.
 
 - range\_length
 
-    X
+    Returns the total length of all ranges combined.
 
-- is\_in\_range
+- is\_in\_range( VALUE )
 
-    X
+    Test whether a VALUE is contained within one of the ranges. Returns 0
+    for a negative result. Returns a list of three numbers for a positive
+    result: 1, start position of the containing range, end position of the
+    containing range.
 
 - output\_ranges
 
-    X
+    Returns all ranges sorted by their start positions. In list context,
+    returns a list of all ranges sorted by start positions. This is
+    suitable for populating a hash, an array, or even another range
+    object. In scalar context, returns a string of ranges formatted as:
+    `1..10,16..20`.
 
 - output\_integers
 
-    X
+    Returns each integer contained within the ranges. In list context,
+    returns a sorted list. In scalar context, returns a sorted,
+    comma-delimited string of integers.
 
-- complement
+- complement( UNIVERSE\_START, UNIVERSE\_END )
 
-    X
+    Returns the complement of a set of ranges. The output is in list
+    context sorted by range start positions.
+
+        my $original_range = Number::RangeTracker->new;
+        $original_range->add_range( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
+
+        my %complement = $original_range->complement;
+        # -inf => 10,
+        # 21   => 40,
+        # 61   => 90,
+        # 111  => +inf
+
+    UNIVERSE\_START and UNIVERSE\_END can be used to specify a finite subset
+    of the 'universe' of numbers (defaults are -/+ infinity. The
+    complement ranges are bounded by these values.
+
+        %complement = $original_range->complement( 1, 50 );
+        # 1  => 10,
+        # 21 => 40
+
+    A new object with the complement of a set of ranges can be created
+    quickly and easily.
+
+        my $complement_range = Number::RangeTracker->new;
+        $complement_range->add_range( $original_range->complement );
 
 # SEE ALSO
 

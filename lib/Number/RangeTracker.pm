@@ -43,9 +43,15 @@ has 'units'     => ( is => 'ro', isa => 'Num',  default => 1 );
 has 'start'     => ( is => 'rw', isa => 'Num' );
 has 'end'       => ( is => 'rw', isa => 'Num' );
 
-=item add_range
+=item add_range( START, END )
 
-X
+Add one or more ranges. This can be used multiple times to add ranges
+to the object. Ranges can be added in several ways. The following are
+equivalent.
+
+    $range->add_range( [ 1, 10 ], [ 16, 20 ] );
+    $range->add_range( 1, 10, 16, 20 );
+    $range->add_range( '1..10', '16..20' );
 
 =cut
 
@@ -81,9 +87,11 @@ sub _get_range_inputs {
     return \@ranges;
 }
 
-=item remove_range
+=item remove_range( START, END )
 
-X
+Remove one or more ranges from the current set of ranges. This can be
+used multiple times to remove ranges from the object. Ranges can be
+removed with the same syntax used for adding ranges.
 
 =cut
 
@@ -132,7 +140,20 @@ sub _update_range {
 
 =item collapse_ranges
 
-X
+When ranges are added or removed, overlapping ranges are not collapsed
+until necessary. This allows range Number::RangeTracker to be very
+fast.
+
+Ranges can be manually collapsed to avoid memory issues when
+working with very large amounts of ranges. In one test, a million
+overlapping ranges required ~100 MB of memory. This requirement was
+cut drastically by collapsing ranges after every 100,000th range was
+added.
+
+Ranges are automatically collapsed (and merged or removed where
+appropriate) (1) before ranges are added (if there are ranges still
+waiting to be removed) and (2) before each of the following methods is
+executed.
 
 =cut
 
@@ -230,7 +251,7 @@ sub _remove {
 
 =item range_length
 
-X
+Returns the total length of all ranges combined.
 
 =cut
 
@@ -246,9 +267,12 @@ sub range_length {
     return $length;
 }
 
-=item is_in_range
+=item is_in_range( VALUE )
 
-X
+Test whether a VALUE is contained within one of the ranges. Returns 0
+for a negative result. Returns a list of three numbers for a positive
+result: 1, start position of the containing range, end position of the
+containing range.
 
 =cut
 
@@ -276,7 +300,11 @@ sub is_in_range {
 
 =item output_ranges
 
-X
+Returns all ranges sorted by their start positions. In list context,
+returns a list of all ranges sorted by start positions. This is
+suitable for populating a hash, an array, or even another range
+object. In scalar context, returns a string of ranges formatted as:
+C<1..10,16..20>.
 
 =cut
 
@@ -300,7 +328,9 @@ sub output_ranges {
 
 =item output_integers
 
-X
+Returns each integer contained within the ranges. In list context,
+returns a sorted list. In scalar context, returns a sorted,
+comma-delimited string of integers.
 
 =cut
 
@@ -328,9 +358,33 @@ sub output_integers {
     else { croak 'Bad context for output_elements()'; }
 }
 
-=item complement
+=item complement( UNIVERSE_START, UNIVERSE_END )
 
-X
+Returns the complement of a set of ranges. The output is in list
+context sorted by range start positions.
+
+    my $original_range = Number::RangeTracker->new;
+    $original_range->add_range( [ 11, 20 ], [ 41, 60 ], [ 91, 110 ] );
+
+    my %complement = $original_range->complement;
+    # -inf => 10,
+    # 21   => 40,
+    # 61   => 90,
+    # 111  => +inf
+
+UNIVERSE_START and UNIVERSE_END can be used to specify a finite subset
+of the 'universe' of numbers (defaults are -/+ infinity. The
+complement ranges are bounded by these values.
+
+    %complement = $original_range->complement( 1, 50 );
+    # 1  => 10,
+    # 21 => 40
+
+A new object with the complement of a set of ranges can be created
+quickly and easily.
+
+    my $complement_range = Number::RangeTracker->new;
+    $complement_range->add_range( $original_range->complement );
 
 =cut
 
