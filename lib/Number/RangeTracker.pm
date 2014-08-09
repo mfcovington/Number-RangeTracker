@@ -21,7 +21,33 @@ our $VERSION = '0.5.0';
 
 =head1 SYNOPSIS
 
-X
+Create and modify ranges (three range syntaxes shown):
+
+    my $range = Number::RangeTracker->new;
+    $range->add( [ 1, 10 ], '11..20' );
+    $range->remove( 6, 15 );
+
+Output ranges, their complement, or integers within ranges
+(differences between scalar and list contexts shown):
+
+    $range->output;
+      # Scalar context: '1..5,16..20'
+      # List context:   ( 1 => 5, 16 => 20 )
+
+    $range->complement;
+      # Scalar context: '-inf..0,6..15,21..+inf'
+      # List context:   ( -inf => 0, 6 => 15, 21 => +inf )
+
+    $range->integers;
+      # Scalar context: '1,2,3,4,5,16,17,18,19,20'
+      # List context:   ( 1, 2, 3, 4, 5, 16, 17, 18, 19, 20 )
+
+Examine range characteristics:
+
+    $range->length;              # 10
+
+    $range->is_in_range(100);    # 0
+    $range->is_in_range(18);     # 1, 16, 20
 
 =head1 DESCRIPTION
 
