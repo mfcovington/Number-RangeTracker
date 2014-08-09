@@ -185,6 +185,7 @@ sub _remove {
 
         my $left_start  = $starts[$left_start_idx];
         my $right_start = $starts[$right_start_idx];
+        next unless defined $left_start && defined $right_start;
 
         my $left_end  = $self->{ranges}{$left_start};
         my $right_end = $self->{ranges}{$right_start};
