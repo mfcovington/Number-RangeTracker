@@ -327,14 +327,12 @@ X
 sub inverse {
     my ( $self, $universe_start, $universe_end ) = @_;
 
-    my @original_ranges = sort { $a <=> $b } $self->output_ranges;
-
-    $universe_start = $original_ranges[0]  unless defined $universe_start;
-    $universe_end   = $original_ranges[-1] unless defined $universe_end;
+    $universe_start = '-inf' unless defined $universe_start;
+    $universe_end   = '+inf' unless defined $universe_end;
 
     my $inverse = Number::RangeTracker->new;
     $inverse->add_range( $universe_start, $universe_end );
-    $inverse->remove_range(@original_ranges);
+    $inverse->remove_range( $self->output_ranges );
 
     return $inverse->output_ranges;
 }

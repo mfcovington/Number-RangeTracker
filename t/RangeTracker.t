@@ -411,15 +411,15 @@ subtest 'inverse ranges' => sub {
     my %inverse = $base_range_ref->inverse;
     is_deeply(
         \%inverse,
-        { 21 => 39, 51 => 79, 101 => 119, 151 => 199 },
-        'Get inverse of ranges'
+        { '-inf' => 9, 21 => 39, 51 => 79, 101 => 119, 151 => 199, 251 => '+inf' },
+        'Get inverse of ranges (with infinite universe)'
     );
 
     %inverse = $base_range_ref->inverse( 1, 300 );
     is_deeply(
         \%inverse,
         { 1 => 9, 21 => 39, 51 => 79, 101 => 119, 151 => 199, 251 => 300 },
-        'Get inverse of ranges (with universe start/end)'
+        'Get inverse of ranges (with finite universe)'
     );
 };
 
