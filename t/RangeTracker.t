@@ -188,11 +188,12 @@ subtest 'remove ranges' => sub {
     );
 };
 
-subtest 'range length' => sub {
-    plan tests => 2;
+subtest 'range length/size' => sub {
+    plan tests => 3;
 
     my $length = $range->length;
-    is( $length, 106, 'range length' );
+    is( $length, 99, 'range length' );
+
     is_deeply(
         $range,
         {   _added => {
@@ -211,6 +212,9 @@ subtest 'range length' => sub {
         },
         'ranges collapsed during length'
     );
+
+    my $size = $range->size;
+    is( $size, 106, 'range size' );
 };
 
 subtest 'output ranges' => sub {

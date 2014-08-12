@@ -44,7 +44,8 @@ Output ranges, their complement, or integers within ranges
 
 Examine range characteristics:
 
-    $range->length;              # 10
+    $range->length;              # 8
+    $range->size;                # 10
 
     $range->is_in_range(100);    # 0
     $range->is_in_range(18);     # 1, 16, 20
@@ -287,9 +288,27 @@ sub length {
 
     my $length = 0;
     for ( keys %{ $self->_added } ) {
-        $length += $self->{_added}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+        $length += $self->{_added}{$_} - $_;
     }
     return $length;
+}
+
+=item size
+
+Returns the total number of elements (i.e., integers) of all ranges.
+
+=cut
+
+sub size {
+    my $self = shift;
+
+    $self->collapse;
+
+    my $size = 0;
+    for ( keys %{ $self->_added } ) {
+        $size += $self->{_added}{$_} - $_ + 1;    # +1 makes it work for integer ranges only
+    }
+    return $size;
 }
 
 =item is_in_range( VALUE )

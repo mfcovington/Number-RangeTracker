@@ -33,7 +33,8 @@ Output ranges, their complement, or integers within ranges
 
 Examine range characteristics:
 
-    $range->length;              # 10
+    $range->length;              # 8
+    $range->size;                # 10
 
     $range->is_in_range(100);    # 0
     $range->is_in_range(18);     # 1, 16, 20
@@ -82,6 +83,10 @@ X
 - length
 
     Returns the total length of all ranges combined.
+
+- size
+
+    Returns the total number of elements (i.e., integers) of all ranges.
 
 - is\_in\_range( VALUE )
 
