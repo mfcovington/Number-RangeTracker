@@ -30,6 +30,7 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
+        'perl'            => 5.006,
         'Carp'            => 0,
         'List::MoreUtils' => 0,
         'List::Util'      => 0,
