@@ -2,7 +2,7 @@
 
 # NAME
 
-Number::RangeTracker - Track lots of numerical ranges quickly and easily
+Number::RangeTracker - Keep track of numerical ranges quickly
 
 # VERSION
 
