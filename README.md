@@ -41,7 +41,17 @@ Examine range characteristics:
 
 # DESCRIPTION
 
-X
+An instance of the Number::RangeTracker class is used to keep track of
+a set of numerical ranges. Ranges can be added to and removed from
+this collection of ranges. Overlapping ranges are collapsed to form a
+single, longer range. Ranges can be manipulated, examined, and output
+in a variety of ways.
+
+While some other modules associate values with a range of keys (see
+["SEE ALSO"](#see-also)), the objective of Number::RangeTracker is to quickly and
+easily monitor the integers on a number line that are covered by at
+least one range. Number::RangeTracker performs significantly faster
+than other modules that have similar functions (see ["SEE ALSO"](#see-also)).
 
 - new
 
