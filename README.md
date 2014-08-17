@@ -149,12 +149,28 @@ than other modules that have similar functions (see ["SEE ALSO"](#see-also)).
 
 # SEE ALSO
 
-[Number::Range](https://metacpan.org/pod/Number::Range),
-[Range::Object::Serial](https://metacpan.org/pod/Range::Object::Serial),
-[Tie::RangeHash](https://metacpan.org/pod/Tie::RangeHash),
-[Array::IntSpan](https://metacpan.org/pod/Array::IntSpan),
-[Bio::Range](https://metacpan.org/pod/Bio::Range),
-[Number::Tolerant](https://metacpan.org/pod/Number::Tolerant)
+- Monitor the integers covered by at least one range
+
+    Although there is some functional overlap between this module, [Number::Range](https://metacpan.org/pod/Number::Range), and [Range::Object::Serial](https://metacpan.org/pod/Range::Object::Serial), Number::RangeTracker is significantly faster.
+
+    It takes less than one second for Number::RangeTracker to add 100,000 overlapping ranges. Over this same period of time, Number::Range and Range::Serial::Object are only able to add 1,000 and 300 ranges, respectively.
+
+    Some tasks require even higher throughput. When adding 1 million overlapping ranges, Number::Range took >250 times as long as Number::RangeTracker (35 min 31 sec vs. 8 sec). Range::Object::Serial slows exponentially as ranges are added and, therefore, it was not feasible to test this many ranges.
+
+![See https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png for a speed comparison of range modules](https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png "Speed comparison of range modules")
+
+- Ranges with strandedness (like double-stranded DNA or mile posts on a two-way road)
+
+    [Bio::Range](https://metacpan.org/pod/Bio::Range)
+
+- Compare numbers in an imprecision-tolerant manner
+
+    [Number::Tolerant](https://metacpan.org/pod/Number::Tolerant)
+
+- Named ranges
+
+    [Tie::RangeHash](https://metacpan.org/pod/Tie::RangeHash),
+    [Array::IntSpan](https://metacpan.org/pod/Array::IntSpan)
 
 # SOURCE AVAILABILITY
 
