@@ -8,7 +8,7 @@ use Test::More tests => 12;
 
 my $debug = 0;
 
-BEGIN { use_ok('Number::RangeTracker 0.6.0'); }
+BEGIN { use_ok('Number::RangeTracker 0.6.1'); }
 
 my $range = Number::RangeTracker->new();
 is_deeply(
