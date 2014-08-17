@@ -1,5 +1,16 @@
 Revision history for Perl module Number::RangeTracker
 
+0.6.0 2014-08-16
+
+  - Rename methods to be more concise
+  - Distinguish range size from range length with new size() method
+  - Enable more range formats: [ start, end ] and 'start..end'
+  - If there are ranges to remove, collapse before adding new ranges
+  - Allow setting of universe range for complement( start, end ); defaults: '-inf', '+inf'
+  - Substantially improve documentation (including speed comparison)
+  - Bug fixes
+  - Happy Birthday CPAN!
+
 0.5.0 2014-08-04
 
   - Change namespace to Number::RangeTracker

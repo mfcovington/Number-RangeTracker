@@ -6,7 +6,7 @@ Number::RangeTracker - Keep track of numerical ranges quickly
 
 # VERSION
 
-Version 0.5.0
+Version 0.6.0
 
 # SYNOPSIS
 
