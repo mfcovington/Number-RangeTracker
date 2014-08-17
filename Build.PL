@@ -5,7 +5,6 @@ use warnings FATAL => 'all';
 use Module::Build;
 
 # TODO: Add version specifications for requirements
-# TODO: Add perl + version to requirements
 
 my $module_file = "lib/Number/RangeTracker.pm";
 my @scripts = grep { -f and !-d } glob 'bin/*';
