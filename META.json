@@ -21,6 +21,7 @@
       },
       "configure" : {
          "requires" : {
+            "Getopt::Long" : "0",
             "Module::Build" : "0"
          }
       },
@@ -41,7 +42,7 @@
    "provides" : {
       "Number::RangeTracker" : {
          "file" : "lib/Number/RangeTracker.pm",
-         "version" : "v0.6.0"
+         "version" : "v0.6.1"
       }
    },
    "release_status" : "stable",
@@ -50,5 +51,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "v0.6.0"
+   "version" : "v0.6.1"
 }

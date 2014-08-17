@@ -13,11 +13,11 @@ Number::RangeTracker - Keep track of numerical ranges quickly
 
 =head1 VERSION
 
-Version 0.6.0
+Version 0.6.1
 
 =cut
 
-our $VERSION = '0.6.0';
+our $VERSION = '0.6.1';
 
 =head1 SYNOPSIS
 

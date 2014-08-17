@@ -1,5 +1,9 @@
 Revision history for Perl module Number::RangeTracker
 
+0.6.1 2014-08-16
+
+  - Only create README.md if './Build.PL --readme'
+
 0.6.0 2014-08-16
 
   - Rename methods to be more concise
