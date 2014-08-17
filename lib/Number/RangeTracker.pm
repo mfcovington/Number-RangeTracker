@@ -463,15 +463,34 @@ sub complement {
 
 =item Monitor the integers covered by at least one range
 
-Although there is some functional overlap between this module, L<Number::Range|Number::Range>, and L<Range::Object::Serial|Range::Object::Serial>, Number::RangeTracker is significantly faster.
+Although there is some functional overlap between this module,
+L<Number::Range|Number::Range>, and
+L<Range::Object::Serial|Range::Object::Serial>, Number::RangeTracker
+is significantly faster.
 
-It takes less than one second for Number::RangeTracker to add 100,000 overlapping ranges. Over this same period of time, Number::Range and Range::Serial::Object are only able to add 1,000 and 300 ranges, respectively.
+It takes less than one second for Number::RangeTracker to add 100,000
+overlapping ranges. Over this same period of time, Number::Range and
+Range::Serial::Object are only able to add 1,000 and 300 ranges,
+respectively.
 
-Some tasks require even higher throughput. When adding 1 million overlapping ranges, Number::Range took >250 times as long as Number::RangeTracker (35 min 31 sec vs. 8 sec). Range::Object::Serial slows exponentially as ranges are added and, therefore, it was not feasible to test this many ranges.
+Some tasks require even higher throughput. When adding 1 million
+overlapping ranges, Number::Range took >250 times as long as
+Number::RangeTracker (35 min 31 sec vs. 8 sec). Range::Object::Serial
+slows exponentially as ranges are added and, therefore, it was not
+feasible to test this many ranges.
+
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/master/compare-modules/speed-comparison.png"
+width="675" alt="Speed comparison of range modules" /></p>
+
+=end HTML
 
 =begin text
 
-A figure comparing the speed of the three modules is available at https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png.
+        A figure comparing the speed of the three modules is available at:
+        https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/master/compare-modules/speed-comparison.png
+        
 
 =end text
 
@@ -479,20 +498,14 @@ A figure comparing the speed of the three modules is available at https://raw.gi
 
 =begin markdown
 
-![See https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png for a speed comparison of range modules](https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png "Speed comparison of range modules")
+    ![See https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/master/compare-modules/speed-comparison.png for a speed comparison of range modules](https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/master/compare-modules/speed-comparison.png "Speed comparison of range modules")
 
 =end markdown
 
-=begin HTML
-
-<p><img src="https://raw.githubusercontent.com/mfcovington/Number-RangeTracker/develop/compare-modules/speed-comparison.png"
-width="675" alt="Speed comparison of range modules" /></p>
-
-=end HTML
-
 =over 4
 
-=item Ranges with strandedness (like double-stranded DNA or mile posts on a two-way road)
+=item Ranges with strandedness (like double-stranded DNA or mile posts
+on a two-way road)
 
 L<Bio::Range|Bio::Range>
 
